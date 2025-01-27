@@ -1,6 +1,9 @@
+using FootballSocialMedia.Repository.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 
+builder.Services.AddRepositoryExtension(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

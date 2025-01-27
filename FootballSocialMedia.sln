@@ -9,17 +9,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{C4963488-2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "project", "project", "{F525335A-10C2-4ACC-8896-0C61E594E4B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballSocialMedia.Model", "FootballSocialMedia.Model\FootballSocialMedia.Model.csproj", "{A65ABE19-071A-4F84-AF20-1646F09B62BF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FootballSocialMedia.Model", "FootballSocialMedia.Model\FootballSocialMedia.Model.csproj", "{A65ABE19-071A-4F84-AF20-1646F09B62BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballSocialMedia.Repository", "FootballSocialMedia.Repository\FootballSocialMedia.Repository.csproj", "{72E5B268-1CB4-487D-9C0C-CC958865996A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FootballSocialMedia.Repository", "FootballSocialMedia.Repository\FootballSocialMedia.Repository.csproj", "{72E5B268-1CB4-487D-9C0C-CC958865996A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballSocialMedia.Service", "FootballSocialMedia.Service\FootballSocialMedia.Service.csproj", "{B1A99D93-157D-44F3-A412-B3EEBA3B8DDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FootballSocialMedia.Service", "FootballSocialMedia.Service\FootballSocialMedia.Service.csproj", "{B1A99D93-157D-44F3-A412-B3EEBA3B8DDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FootballSocialMedia.Api", "FootballSocialMedia.Api\FootballSocialMedia.Api.csproj", "{D39217A2-81C5-48CD-97D0-A28A80EE00A3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FootballSocialMedia.Api", "FootballSocialMedia.Api\FootballSocialMedia.Api.csproj", "{D39217A2-81C5-48CD-97D0-A28A80EE00A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.CrossCuttingConcerns", "Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj", "{330E635C-1FB9-4C40-9450-8E610D8E2EDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.CrossCuttingConcerns", "Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj", "{330E635C-1FB9-4C40-9450-8E610D8E2EDE}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8F9F109A-85B2-4D53-9021-1D21182C13C2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Persistence", "..\Core.Persistence\Core.Persistence.csproj", "{4E4342CE-306B-4CAA-A55A-DEF222C09A84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{8F9F109A-85B2-4D53-9021-1D21182C13C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F9F109A-85B2-4D53-9021-1D21182C13C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F9F109A-85B2-4D53-9021-1D21182C13C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E4342CE-306B-4CAA-A55A-DEF222C09A84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E4342CE-306B-4CAA-A55A-DEF222C09A84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E4342CE-306B-4CAA-A55A-DEF222C09A84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E4342CE-306B-4CAA-A55A-DEF222C09A84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{B1A99D93-157D-44F3-A412-B3EEBA3B8DDC} = {F525335A-10C2-4ACC-8896-0C61E594E4B9}
 		{D39217A2-81C5-48CD-97D0-A28A80EE00A3} = {F525335A-10C2-4ACC-8896-0C61E594E4B9}
 		{330E635C-1FB9-4C40-9450-8E610D8E2EDE} = {C4963488-20D0-408B-9CAE-4B3A412D7FCC}
+		{4E4342CE-306B-4CAA-A55A-DEF222C09A84} = {C4963488-20D0-408B-9CAE-4B3A412D7FCC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {55700196-A145-45E7-A92E-CCB8C2E94F6D}
