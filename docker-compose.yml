@@ -1,0 +1,15 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: fsm_sql_server_container
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Fsm12345
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"  
+    volumes:
+      - fsm_sql_data:/var/opt/mssql  
+volumes:
+  fsm_sql_data:
+    driver: local
