@@ -1,6 +1,10 @@
 ﻿using Core.Persistence.Options;
 using FootballSocialMedia.Repository.Context;
 using FootballSocialMedia.Repository.Interceptors;
+using FootballSocialMedia.Repository.Posts.Abstracts;
+using FootballSocialMedia.Repository.Posts.Concretes;
+using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
+using FootballSocialMedia.Repository.UnitOfWorks.Concretes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +28,10 @@ public static class RepositoryExtensions
 
             options.AddInterceptors(new AuditDbContextInterceptor());
         });
+
+
+        services.AddScoped<IPostRepository, PostRepository>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }

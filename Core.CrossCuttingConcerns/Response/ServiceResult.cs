@@ -72,7 +72,7 @@ public class ServiceResult<T> : ServiceResult
         };
     }
 
-    public static ServiceResult<T> Fail(List<string> errorMessage,
+    public new static ServiceResult<T> Fail(List<string> errorMessage,
            HttpStatusCode status = HttpStatusCode.BadRequest)
     {
         return new ServiceResult<T>()
@@ -82,7 +82,7 @@ public class ServiceResult<T> : ServiceResult
         };
     }
 
-    public static ServiceResult<T> Fail(string errorMessage, HttpStatusCode status = HttpStatusCode.BadRequest)
+    public new static ServiceResult<T> Fail(string errorMessage, HttpStatusCode status = HttpStatusCode.BadRequest)
     {
         return new ServiceResult<T>()
         {

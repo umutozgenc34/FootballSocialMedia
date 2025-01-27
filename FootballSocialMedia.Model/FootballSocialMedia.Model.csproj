@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Posts\Dtos\" />
-  </ItemGroup>
-
 </Project>
