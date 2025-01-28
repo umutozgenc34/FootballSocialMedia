@@ -85,7 +85,7 @@ namespace Service.Test
             // Assert
             Assert.IsFalse(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.NotFound, result.Status);
-            Assert.AreEqual("Post not found", result.Message);
+            Assert.AreEqual("Post not found", result.ErrorMessage.FirstOrDefault());
             _postRepositoryMock.Verify(r => r.GetByIdAsync(postId), Times.Once);
             _postRepositoryMock.Verify(r => r.Delete(It.IsAny<Post>()), Times.Never);
             _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Never);
@@ -122,7 +122,7 @@ namespace Service.Test
             // Assert
             Assert.IsFalse(result.IsSuccess);
             Assert.AreEqual(HttpStatusCode.NotFound, result.Status);
-            Assert.AreEqual("Post not found", result.Message);
+            Assert.AreEqual("Post not found", result.ErrorMessage?.FirstOrDefault());
             _postRepositoryMock.Verify(r => r.GetByIdAsync(postId), Times.Once);
         }
 
