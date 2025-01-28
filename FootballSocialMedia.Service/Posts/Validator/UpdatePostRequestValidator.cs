@@ -17,8 +17,16 @@ public class UpdatePostRequestValidator : AbstractValidator<UpdatePostRequest>
             .WithMessage("Content cannot exceed 500 characters.");
 
         RuleFor(request => request.ImageUrls)
-        .Must(file => file == null || file.Any(f => f.Length > 0)) 
-        .WithMessage("At least one image must be uploaded.");
+            .Must(files => files == null || files.All(f => f.Length > 0))
+            .WithMessage("All uploaded images must be valid.")
+            .Must(files => files == null || files.Count() <= 4)
+            .WithMessage("You can upload a maximum of 4 images.");
+
+        RuleFor(request => request.VideoUrls)
+            .Must(files => files == null || files.All(f => f.Length > 0))
+            .WithMessage("All uploaded videos must be valid.")
+            .Must(files => files == null || files.Count() <= 4)
+            .WithMessage("You can upload a maximum of 4 videos.");
 
     }
 }

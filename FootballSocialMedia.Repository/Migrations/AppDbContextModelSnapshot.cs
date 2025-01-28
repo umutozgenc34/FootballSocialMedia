@@ -37,12 +37,15 @@ namespace FootballSocialMedia.Repository.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrls")
-                        .IsRequired()
                         .HasMaxLength(2500)
                         .HasColumnType("nvarchar(2500)");
 
                     b.Property<DateTime>("UpdatedTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("VideoUrls")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

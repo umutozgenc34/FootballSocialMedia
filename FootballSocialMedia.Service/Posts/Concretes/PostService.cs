@@ -18,16 +18,25 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 {
     public async Task<ServiceResult<CreatePostResponse>> CreateAsync(CreatePostRequest request)
     {
-        List<string> imageUrls = new List<string>();  
+        List<string> imageUrls = new List<string>();
+        List<string> videoUrls = new List<string>();
 
+        
         if (request.ImageUrls != null && request.ImageUrls.Any())
         {
-            imageUrls = await cloudinaryService.UploadImages(request.ImageUrls, "post-images");  
+            imageUrls = await cloudinaryService.UploadImages(request.ImageUrls, "post-images");
+        }
+
+        
+        if (request.VideoUrls != null && request.VideoUrls.Any())
+        {
+            videoUrls = await cloudinaryService.UploadVideos(request.VideoUrls, "post-videos");
         }
 
         var post = mapper.Map<Post>(request);
         post.Id = idGenerator.GenerateId();
-        post.ImageUrls = imageUrls;  
+        post.ImageUrls = imageUrls;
+        post.VideoUrls = videoUrls;
 
         await postRepository.AddAsync(post);
         await unitOfWork.SaveChangesAsync();
@@ -73,7 +82,7 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 
     public async Task<ServiceResult> UpdateAsync(UpdatePostRequest request)
     {
-        
+
         var post = await postRepository.GetByIdAsync(request.Id);
         if (post is null)
         {
@@ -86,7 +95,14 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
             post.ImageUrls = imageUrls;
         }
 
-        var postAsDto = mapper.Map(request, post);
+        if (request.VideoUrls != null && request.VideoUrls.Any())
+        {
+            var videoUrls = await cloudinaryService.UploadVideos(request.VideoUrls, "post-videos");
+            post.VideoUrls = videoUrls;
+        }
+
+        post.Content = request.Content;
+        post.UpdatedTime = DateTime.UtcNow;
 
         postRepository.Update(post);
         await unitOfWork.SaveChangesAsync();
