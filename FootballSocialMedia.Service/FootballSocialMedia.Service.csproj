@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj" />
+    <ProjectReference Include="..\Core.Infrastructure\Core.Infrastructure.csproj" />
     <ProjectReference Include="..\FootballSocialMedia.Repository\FootballSocialMedia.Repository.csproj" />
   </ItemGroup>
 

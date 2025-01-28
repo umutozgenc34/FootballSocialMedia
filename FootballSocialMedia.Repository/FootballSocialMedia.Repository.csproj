@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core.Persistence\Core.Persistence.csproj" />
     <ProjectReference Include="..\FootballSocialMedia.Model\FootballSocialMedia.Model.csproj" />
   </ItemGroup>
 

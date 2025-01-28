@@ -11,8 +11,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core.Persistence\Core.Persistence.csproj" />
     <ProjectReference Include="..\Core.CrossCuttingConcerns\Core.CrossCuttingConcerns.csproj" />
+    <ProjectReference Include="..\Core.Persistence\Core.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
