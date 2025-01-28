@@ -44,6 +44,7 @@ public class ServiceResult
         {
             ErrorMessage = [errorMessage],
             Status = status
+            
 
         };
     }
@@ -77,6 +78,7 @@ public class ServiceResult<T> : ServiceResult
     {
         return new ServiceResult<T>()
         {
+            
             ErrorMessage = errorMessage,
             Status = status
         };

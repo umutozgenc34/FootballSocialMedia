@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using CloudinaryDotNet;
 using Core.CrossCuttingConcerns.Response;
 using Core.Infrastructure.Services.CloudinaryService.Abstracts;
 using Core.Infrastructure.Services.IdGenerator.Abstracts;
