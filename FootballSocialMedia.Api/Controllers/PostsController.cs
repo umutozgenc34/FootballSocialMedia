@@ -11,11 +11,13 @@ public class PostsController(IPostService postService) : CustomBaseController
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetPost([FromRoute] Guid id) => CreateActionResult(await postService.GetByIdAsync(id));
     [HttpPost]
-    public async Task<IActionResult> CreatePost([FromBody] CreatePostRequest request) => CreateActionResult(await postService
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> CreatePost([FromForm] CreatePostRequest request) => CreateActionResult(await postService
         .CreateAsync(request));
 
     [HttpPut]
-    public async Task<IActionResult> UpdatePost([FromBody] UpdatePostRequest request) => CreateActionResult
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdatePost([FromForm] UpdatePostRequest request) => CreateActionResult
         (await postService.UpdateAsync(request));
 
     [HttpDelete("{id:guid}")]

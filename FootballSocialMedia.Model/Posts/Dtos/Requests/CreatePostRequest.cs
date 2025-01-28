@@ -1,3 +1,5 @@
-﻿namespace FootballSocialMedia.Model.Posts.Dtos.Requests;
+﻿using Microsoft.AspNetCore.Http;
 
-public sealed record CreatePostRequest(string Content,string? ImageUrl);
+namespace FootballSocialMedia.Model.Posts.Dtos.Requests;
+
+public sealed record CreatePostRequest(string Content, IEnumerable<IFormFile>? ImageUrls);

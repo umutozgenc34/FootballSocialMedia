@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using CloudinaryDotNet;
 using Core.CrossCuttingConcerns.Response;
+using Core.Infrastructure.Services.CloudinaryService.Abstracts;
 using Core.Infrastructure.Services.IdGenerator.Abstracts;
 using FootballSocialMedia.Model.Posts.Dtos.Requests;
 using FootballSocialMedia.Model.Posts.Dtos.Responses;
@@ -12,12 +14,20 @@ using System.Net;
 
 namespace FootballSocialMedia.Service.Posts.Concretes;
 
-public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWork unitOfWork,IIdGenerator idGenerator) : IPostService
+public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWork unitOfWork,IIdGenerator idGenerator,ICloudinaryService cloudinaryService) : IPostService
 {
     public async Task<ServiceResult<CreatePostResponse>> CreateAsync(CreatePostRequest request)
     {
+        List<string> imageUrls = new List<string>();  
+
+        if (request.ImageUrls != null && request.ImageUrls.Any())
+        {
+            imageUrls = await cloudinaryService.UploadImages(request.ImageUrls, "post-images");  
+        }
+
         var post = mapper.Map<Post>(request);
         post.Id = idGenerator.GenerateId();
+        post.ImageUrls = imageUrls;  
 
         await postRepository.AddAsync(post);
         await unitOfWork.SaveChangesAsync();
@@ -63,24 +73,26 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 
     public async Task<ServiceResult> UpdateAsync(UpdatePostRequest request)
     {
-        var isPostIdExist = await postRepository.Where(x => x.Id != request.Id).AnyAsync();
-
-        if (isPostIdExist is true)
-        {
-            return ServiceResult.Fail("There is a post with the same ID.", HttpStatusCode.BadRequest);
-        }
-
+        
         var post = await postRepository.GetByIdAsync(request.Id);
         if (post is null)
         {
             return ServiceResult.Fail("Post not found.", HttpStatusCode.NotFound);
         }
 
-        var courseAsDto = mapper.Map(request, post);
+        if (request.ImageUrls != null && request.ImageUrls.Any())
+        {
+            var imageUrls = await cloudinaryService.UploadImages(request.ImageUrls, "post-images");
+            post.ImageUrls = imageUrls;
+        }
+
+        var postAsDto = mapper.Map(request, post);
 
         postRepository.Update(post);
         await unitOfWork.SaveChangesAsync();
 
         return ServiceResult.Success(HttpStatusCode.NoContent);
     }
+
+
 }

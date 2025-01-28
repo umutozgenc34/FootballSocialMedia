@@ -15,7 +15,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
             .IsRequired()
             .HasMaxLength(500);
 
-        builder.Property(p => p.ImageUrl)
-            .HasMaxLength(250); 
+        builder.Property(p => p.ImageUrls)
+            .HasMaxLength(2500); 
     }
 }

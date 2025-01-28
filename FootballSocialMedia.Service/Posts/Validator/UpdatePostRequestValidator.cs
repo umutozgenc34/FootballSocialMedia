@@ -16,9 +16,9 @@ public class UpdatePostRequestValidator : AbstractValidator<UpdatePostRequest>
             .MaximumLength(500)
             .WithMessage("Content cannot exceed 500 characters.");
 
-        RuleFor(x => x.ImageUrl)
-            .Must(uri => string.IsNullOrEmpty(uri) || Uri.IsWellFormedUriString(uri, UriKind.Absolute))
-            .WithMessage("ImageUrl must be a valid URL");
+        RuleFor(request => request.ImageUrls)
+        .Must(file => file == null || file.Any(f => f.Length > 0)) 
+        .WithMessage("At least one image must be uploaded.");
 
     }
 }
