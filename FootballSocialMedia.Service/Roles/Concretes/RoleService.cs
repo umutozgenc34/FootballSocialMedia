@@ -51,5 +51,27 @@ public class RoleService : IRoleService
         return ServiceResult.Success("The roles has been successfully added.", HttpStatusCode.Created);
     }
 
+    public async Task<ServiceResult> CreateRoleAsync(string roleName)
+    {
+        if (string.IsNullOrWhiteSpace(roleName))
+        {
+            return ServiceResult.Fail("Role name cannot be empty.");
+        }
+
+        var roleExists = await _roleManager.RoleExistsAsync(roleName);
+        if (roleExists)
+        {
+            return ServiceResult.Fail("This role already exists.");
+        }
+
+        var result = await _roleManager.CreateAsync(new IdentityRole { Name = roleName });
+        if (!result.Succeeded)
+        {
+            return ServiceResult.Fail("An error occurred while creating the role.");
+        }
+
+        return ServiceResult.Success("Role successfully created.", HttpStatusCode.Created);
+    }
+
 }
 

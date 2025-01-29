@@ -5,4 +5,5 @@ namespace FootballSocialMedia.Service.Roles.Abstracts;
 public interface IRoleService
 {
     Task<ServiceResult> CreateUserRolesAsync(string userName, List<string> roles);
+    Task<ServiceResult> CreateRoleAsync(string roleName);
 }
