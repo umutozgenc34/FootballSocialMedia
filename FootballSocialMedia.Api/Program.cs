@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddRepositoryExtension(builder.Configuration);
-builder.Services.AddServiceExtension();
+builder.Services.AddServiceExtension(builder.Configuration);
 builder.Services.AddCommonServiceExtension(typeof(ServiceAssembly),builder.Configuration);
 
 builder.Services.AddIdentity<User, IdentityRole>(opt =>
@@ -25,8 +25,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader());
+});
+
+
 var app = builder.Build();
 
+app.UseCors("AllowAll");
 app.UseExceptionHandler(x => { });
 
 if (app.Environment.IsDevelopment())
@@ -37,6 +47,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
