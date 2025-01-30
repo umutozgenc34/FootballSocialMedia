@@ -5,6 +5,8 @@ using FootballSocialMedia.Repository.Posts.Abstracts;
 using FootballSocialMedia.Repository.Posts.Concretes;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Concretes;
+using FootballSocialMedia.Repository.Users.Abstracts;
+using FootballSocialMedia.Repository.Users.Concretes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,6 +34,7 @@ public static class RepositoryExtensions
 
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUserProfileRepository,UserProfileRepository>();
 
         return services;
     }

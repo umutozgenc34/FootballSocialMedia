@@ -4,6 +4,8 @@ using Core.Security.Dtos;
 using FootballSocialMedia.Model.Users.Dtos.Requests;
 using FootballSocialMedia.Model.Users.Dtos.Responses;
 using FootballSocialMedia.Model.Users.Entities;
+using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
+using FootballSocialMedia.Repository.Users.Abstracts;
 using FootballSocialMedia.Service.Users.Abstracts;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
@@ -15,11 +17,15 @@ public class UserService : IUserService
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IMapper _mapper;
-    public UserService(UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
+    private readonly IUserProfileRepository _userProfileRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    public UserService(UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IUserProfileRepository userProfileRepository,IUnitOfWork unitOfWork)
     {
         _userManager = userManager;
         _mapper = mapper;
         _roleManager = roleManager;
+        _userProfileRepository = userProfileRepository;
+        _unitOfWork = unitOfWork;
 
     }
     public async Task<ServiceResult<UserDto>> RegisterAsync(RegisterDto registerDto)
@@ -84,20 +90,46 @@ public class UserService : IUserService
         var userAsDto = _mapper.Map<UserDto>(user);
         return ServiceResult<UserDto>.Success(userAsDto, HttpStatusCode.OK);
     }
-    public async Task<ServiceResult> UpdateAsync(string id, UpdateUserRequest request)
+    public async Task<ServiceResult> UpdateAsync(UpdateUserRequest request)
     {
-        var user = await _userManager.FindByIdAsync(id);
-        if (user is null)
+        var user = await _userManager.FindByIdAsync(request.Id);  
+        if (user == null)
         {
-            return ServiceResult.Fail("User not found", HttpStatusCode.NotFound);
+            return ServiceResult.Fail("User not found.", HttpStatusCode.NotFound);  
         }
-        user.UserName = request.UserName;
 
-        var result = await _userManager.UpdateAsync(user);
-        if (result.Succeeded is false)
+       
+        if (!string.IsNullOrEmpty(request.Email))
+            user.Email = request.Email;
+
+        if (!string.IsNullOrEmpty(request.UserName))
+            user.UserName = request.UserName;
+
+       
+        var userResult = await _userManager.UpdateAsync(user);
+        if (!userResult.Succeeded)
         {
-            return ServiceResult.Fail(result.Errors.First().Description);
+            return ServiceResult.Fail("An error occurred while updating the user.");
         }
-        return ServiceResult.Success("User updated.", HttpStatusCode.NoContent);
+
+        
+        if (request.UserProfile != null)
+        {
+            var userProfile = await _userProfileRepository.GetByUserIdAsync(user.Id);
+            if (userProfile == null)
+            {
+                return ServiceResult.Fail("User profile not found.");
+            }
+
+            userProfile.FavoriteTeam = request.UserProfile.FavoriteTeam;
+            userProfile.Bio = request.UserProfile.Bio;
+            userProfile.ProfileImageUrl = request.UserProfile.ProfileImageUrl;
+
+            _userProfileRepository.Update(userProfile);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        return ServiceResult.Success("User updated successfully.");
     }
+
 }

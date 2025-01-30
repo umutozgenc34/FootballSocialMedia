@@ -11,6 +11,6 @@ public interface IUserService
     Task<ServiceResult<UserDto>> GetUserByNameAsync(string userName);
     Task<ServiceResult<List<UserDto>>> GetAllAsync();
     Task<ServiceResult<UserDto>> GetByIdAsync(string id);
-    Task<ServiceResult> UpdateAsync(string id, UpdateUserRequest request);
+    Task<ServiceResult> UpdateAsync(UpdateUserRequest request);
     Task<ServiceResult> DeleteAsync(string id);
 }

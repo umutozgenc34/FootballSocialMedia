@@ -1,3 +1,5 @@
-﻿namespace FootballSocialMedia.Model.Users.Dtos.Requests;
+﻿using FootballSocialMedia.Model.Users.Dtos.Responses;
 
-public sealed record UpdateUserRequest(string Id,string UserName);
+namespace FootballSocialMedia.Model.Users.Dtos.Requests;
+
+public sealed record UpdateUserRequest(string Id,string? Email,string? UserName,UserProfileDto? UserProfile);
