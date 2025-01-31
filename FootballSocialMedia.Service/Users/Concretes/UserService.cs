@@ -1,5 +1,8 @@
 ﻿using AutoMapper;
 using Core.CrossCuttingConcerns.Response;
+using Core.Infrastructure.Services.CloudinaryService.Abstracts;
+using Core.Infrastructure.Services.IdGenerator.Abstracts;
+using Core.Infrastructure.Services.IdGenerator.Concretes;
 using Core.Security.Dtos;
 using FootballSocialMedia.Model.Users.Dtos.Requests;
 using FootballSocialMedia.Model.Users.Dtos.Responses;
@@ -7,8 +10,10 @@ using FootballSocialMedia.Model.Users.Entities;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
 using FootballSocialMedia.Repository.Users.Abstracts;
 using FootballSocialMedia.Service.Users.Abstracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using System.Net;
+using System.Security.Principal;
 
 namespace FootballSocialMedia.Service.Users.Concretes;
 
@@ -19,13 +24,18 @@ public class UserService : IUserService
     private readonly IMapper _mapper;
     private readonly IUserProfileRepository _userProfileRepository;
     private readonly IUnitOfWork _unitOfWork;
-    public UserService(UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IUserProfileRepository userProfileRepository,IUnitOfWork unitOfWork)
+    private readonly ICloudinaryService _cloudinaryService;
+    private readonly IIdGenerator _idGenerator;
+    public UserService(UserManager<User> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager, IUserProfileRepository userProfileRepository
+        ,IUnitOfWork unitOfWork,ICloudinaryService cloudinaryService,IIdGenerator idGenerator)
     {
         _userManager = userManager;
         _mapper = mapper;
         _roleManager = roleManager;
         _userProfileRepository = userProfileRepository;
         _unitOfWork = unitOfWork;
+        _cloudinaryService = cloudinaryService;
+        _idGenerator = idGenerator;
 
     }
     public async Task<ServiceResult<UserDto>> RegisterAsync(RegisterDto registerDto)
@@ -90,46 +100,71 @@ public class UserService : IUserService
         var userAsDto = _mapper.Map<UserDto>(user);
         return ServiceResult<UserDto>.Success(userAsDto, HttpStatusCode.OK);
     }
+
+
     public async Task<ServiceResult> UpdateAsync(UpdateUserRequest request)
     {
-        var user = await _userManager.FindByIdAsync(request.Id);  
+        var user = await _userManager.FindByIdAsync(request.Id);
         if (user == null)
         {
-            return ServiceResult.Fail("User not found.", HttpStatusCode.NotFound);  
+            return ServiceResult.Fail("User not found.", HttpStatusCode.NotFound);
         }
 
-       
         if (!string.IsNullOrEmpty(request.Email))
             user.Email = request.Email;
 
         if (!string.IsNullOrEmpty(request.UserName))
             user.UserName = request.UserName;
 
-       
         var userResult = await _userManager.UpdateAsync(user);
         if (!userResult.Succeeded)
         {
             return ServiceResult.Fail("An error occurred while updating the user.");
         }
 
-        
+        var userProfile = await _userProfileRepository.GetByUserIdAsync(user.Id);
+
+        if (userProfile == null)
+        {
+            userProfile = new UserProfile
+            {
+                Id= _idGenerator.GenerateId(),
+                UserId = user.Id,
+                FavoriteTeam = request.UserProfile?.FavoriteTeam,
+                Bio = request.UserProfile?.Bio,
+                ProfileImageUrl = null // refactor sonra
+            };
+
+            await _userProfileRepository.AddAsync(userProfile);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
         if (request.UserProfile != null)
         {
-            var userProfile = await _userProfileRepository.GetByUserIdAsync(user.Id);
-            if (userProfile == null)
-            {
-                return ServiceResult.Fail("User profile not found.");
-            }
-
             userProfile.FavoriteTeam = request.UserProfile.FavoriteTeam;
             userProfile.Bio = request.UserProfile.Bio;
-            userProfile.ProfileImageUrl = request.UserProfile.ProfileImageUrl;
+
+            if (request.UserProfile.ProfileImageUrl != null)
+            {
+                var uploadUrls = await _cloudinaryService.UploadImages(
+                    new List<IFormFile> { request.UserProfile.ProfileImageUrl },
+                    "profile_images"
+                );
+
+                if (uploadUrls.Any())
+                {
+                    userProfile.ProfileImageUrl = uploadUrls.First();
+                }
+            }
 
             _userProfileRepository.Update(userProfile);
             await _unitOfWork.SaveChangesAsync();
         }
 
-        return ServiceResult.Success("User updated successfully.");
+        await _unitOfWork.SaveChangesAsync();
+
+        return ServiceResult.Success("User updated successfully.",HttpStatusCode.NoContent);
     }
+
 
 }

@@ -34,6 +34,7 @@ public class UsersController(IUserService userService) : CustomBaseController
         => CreateActionResult(await userService.DeleteAsync(id));
 
     [HttpPut]
-    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateUser([FromForm] UpdateUserRequest request)
         => CreateActionResult(await userService.UpdateAsync(request));
 }

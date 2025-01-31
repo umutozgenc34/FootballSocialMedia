@@ -1,3 +1,5 @@
-﻿namespace FootballSocialMedia.Model.Users.Dtos.Responses;
+﻿using Microsoft.AspNetCore.Http;
 
-public sealed record UserProfileDto(string? FavoriteTeam,string? Bio,string? ProfileImageUrl);
+namespace FootballSocialMedia.Model.Users.Dtos.Responses;
+
+public sealed record UserProfileDto(string? FavoriteTeam,string? Bio,IFormFile? ProfileImageUrl);
