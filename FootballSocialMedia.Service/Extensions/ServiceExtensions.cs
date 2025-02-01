@@ -2,6 +2,8 @@
 using Core.Security.Token.Options;
 using FootballSocialMedia.Service.Authentications.Abstracts;
 using FootballSocialMedia.Service.Authentications.Concretes;
+using FootballSocialMedia.Service.Comments.Abstracts;
+using FootballSocialMedia.Service.Comments.Concretes;
 using FootballSocialMedia.Service.JWT.Abstracts;
 using FootballSocialMedia.Service.JWT.Concretes;
 using FootballSocialMedia.Service.Posts.Abstracts;
@@ -28,6 +30,7 @@ public static class ServiceExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<ICommentService,CommentService>();
 
         services.Configure<CustomTokenOption>(configuration.GetSection("TokenOption"));
 

@@ -1,4 +1,6 @@
 ﻿using Core.Persistence.Options;
+using FootballSocialMedia.Repository.Comments.Abstracts;
+using FootballSocialMedia.Repository.Comments.Concretes;
 using FootballSocialMedia.Repository.Context;
 using FootballSocialMedia.Repository.Interceptors;
 using FootballSocialMedia.Repository.Posts.Abstracts;
@@ -34,6 +36,7 @@ public static class RepositoryExtensions
 
         services.AddScoped<IPostRepository, PostRepository>();
         services.Decorate<IPostRepository,PostRepositoryWithCache>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserProfileRepository,UserProfileRepository>();
 
