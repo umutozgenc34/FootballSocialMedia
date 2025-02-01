@@ -23,4 +23,8 @@ public class PostsController(IPostService postService) : CustomBaseController
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeletePost([FromRoute] Guid id) => CreateActionResult(await postService.DeleteAsync(id));
 
+    [HttpGet("with-comments")]
+    public async Task<IActionResult> GetPostsWithComments()
+        => CreateActionResult(await postService.GetPostsWithCommentsAsync());
+
 }

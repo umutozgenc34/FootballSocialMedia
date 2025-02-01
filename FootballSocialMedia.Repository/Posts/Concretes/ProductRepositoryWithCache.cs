@@ -84,4 +84,9 @@ public class PostRepositoryWithCache : IPostRepository
         _distributedCache.RemoveAsync($"{CacheKeyPrefix}{entity.Id}");
         _distributedCache.RemoveAsync($"{CacheKeyPrefix}all_posts");
     }
+
+    public Task<List<Post>> GetPostsWithCommentsAsync()
+    {
+       return _innerRepository.GetPostsWithCommentsAsync();
+    }
 }

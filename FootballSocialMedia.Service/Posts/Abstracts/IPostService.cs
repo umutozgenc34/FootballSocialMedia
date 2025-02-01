@@ -11,4 +11,5 @@ public interface IPostService
     Task<ServiceResult<CreatePostResponse>> CreateAsync(CreatePostRequest request);
     Task<ServiceResult> UpdateAsync(UpdatePostRequest request);
     Task<ServiceResult> DeleteAsync(Guid id);
+    Task<ServiceResult<List<PostWithCommentsResponse>>> GetPostsWithCommentsAsync();
 }

@@ -13,5 +13,6 @@ public class PostMappingProfile : Profile
         CreateMap<UpdatePostRequest, Post>();
         CreateMap<Post, PostDto>().ReverseMap();
         CreateMap<Post, CreatePostResponse>();
+        CreateMap<Post, PostWithCommentsResponse>().ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
     }
 }

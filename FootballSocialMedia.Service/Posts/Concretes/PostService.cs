@@ -109,5 +109,12 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
         return ServiceResult.Success(HttpStatusCode.NoContent);
     }
 
+    public async Task<ServiceResult<List<PostWithCommentsResponse>>> GetPostsWithCommentsAsync()
+    {
+        var posts = await postRepository.GetPostsWithCommentsAsync();
+        var postsAsDto = mapper.Map<List<PostWithCommentsResponse>>(posts);
+
+        return ServiceResult<List<PostWithCommentsResponse>>.Success(postsAsDto, HttpStatusCode.OK);
+    }
 
 }

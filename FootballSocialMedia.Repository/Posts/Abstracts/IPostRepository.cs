@@ -5,4 +5,5 @@ namespace FootballSocialMedia.Repository.Posts.Abstracts;
 
 public interface IPostRepository : IEfBaseRepository<Post,Guid>
 {
+    Task<List<Post>> GetPostsWithCommentsAsync();
 }
