@@ -5,7 +5,7 @@ namespace Core.Persistence.Repositories.Abstracts;
 
 public interface IEfBaseRepository<TEntity, in TId> where TEntity : BaseEntity<TId>, new()
 {
-    IQueryable<TEntity> GetAll();
+    Task<List<TEntity>> GetAllAsync();
     ValueTask<TEntity?> GetByIdAsync(TId id);
     IQueryable<TEntity> Where(Expression<Func<TEntity, bool>>? predicate = null);
     ValueTask AddAsync(TEntity entity);

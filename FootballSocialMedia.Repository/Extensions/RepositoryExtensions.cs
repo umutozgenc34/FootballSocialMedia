@@ -33,7 +33,7 @@ public static class RepositoryExtensions
 
 
         services.AddScoped<IPostRepository, PostRepository>();
-   
+        services.Decorate<IPostRepository,PostRepositoryWithCache>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserProfileRepository,UserProfileRepository>();
 

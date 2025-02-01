@@ -61,7 +61,7 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 
     public async Task<ServiceResult<List<PostDto>>> GetAllAsync()
     {
-        var posts = await postRepository.GetAll().ToListAsync();
+        var posts = await postRepository.GetAllAsync();
         var postsAsDto = mapper.Map<List<PostDto>>(posts);
 
         return ServiceResult<List<PostDto>>.Success(postsAsDto,HttpStatusCode.OK);
@@ -102,7 +102,6 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
         }
 
         post.Content = request.Content;
-        post.UpdatedTime = DateTime.UtcNow;
 
         postRepository.Update(post);
         await unitOfWork.SaveChangesAsync();

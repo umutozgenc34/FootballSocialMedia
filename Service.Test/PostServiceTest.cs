@@ -44,7 +44,7 @@ namespace Service.Test
         public async Task CreateAsync_WhenCalled_ReturnsSuccessResult()
         {
             // Arrange
-            var request = new CreatePostRequest("Test content", null, null);
+            var request = new CreatePostRequest("UserId","Test content", null, null);
 
             var post = new Post
             {
@@ -57,7 +57,7 @@ namespace Service.Test
             _postRepositoryMock.Setup(r => r.AddAsync(post)).Returns(ValueTask.CompletedTask);
             _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
 
-            var expectedResponse = new CreatePostResponse(post.Id, post.Content, new List<string>(), new List<string>(), DateTime.UtcNow);
+            var expectedResponse = new CreatePostResponse(post.Id, post.UserId,post.Content, new List<string>(), new List<string>(), DateTime.UtcNow);
             _mapperMock.Setup(m => m.Map<CreatePostResponse>(post)).Returns(expectedResponse);
 
 

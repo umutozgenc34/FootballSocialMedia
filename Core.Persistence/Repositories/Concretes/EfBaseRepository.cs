@@ -11,14 +11,14 @@ public class EfBaseRepository<TContext,TEntity,TId>(TContext context) : IEfBaseR
 {
     protected TContext Context { get; } = context;
 
-    public IQueryable<TEntity> GetAll() => Context.Set<TEntity>().AsNoTracking();
+    public async Task<List<TEntity>> GetAllAsync() => await Context.Set<TEntity>().ToListAsync();
 
     public ValueTask<TEntity?> GetByIdAsync(TId id) => Context.Set<TEntity>().FindAsync(id);
 
     public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>>? predicate = null)
     {
         return predicate is null
-            ? GetAll()
+            ? Context.Set<TEntity>()
             : Context.Set<TEntity>().Where(predicate);
     }
 
