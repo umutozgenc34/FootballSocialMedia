@@ -33,8 +33,15 @@ public static class RepositoryExtensions
 
 
         services.AddScoped<IPostRepository, PostRepository>();
+   
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserProfileRepository,UserProfileRepository>();
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = configuration.GetConnectionString("Redis");
+        });
+
 
         return services;
     }

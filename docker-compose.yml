@@ -10,6 +10,17 @@ services:
       - "1433:1433"  
     volumes:
       - fsm_sql_data:/var/opt/mssql  
+
+  redis:
+    image: redis:latest
+    container_name: fm_redis_container
+    ports:
+      - "6377:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   fsm_sql_data:
+    driver: local
+  redis_data:
     driver: local

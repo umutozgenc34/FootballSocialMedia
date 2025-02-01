@@ -34,6 +34,7 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 
         var post = mapper.Map<Post>(request);
         post.Id = idGenerator.GenerateId();
+        post.UserId = request.UserId;
         post.ImageUrls = imageUrls;
         post.VideoUrls = videoUrls;
 

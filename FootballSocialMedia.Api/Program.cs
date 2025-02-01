@@ -1,4 +1,5 @@
 using Core.Infrastructure.Extensions;
+using Core.Security.Extensions;
 using FootballSocialMedia.Api.ExceptionHandler;
 using FootballSocialMedia.Model.Users.Entities;
 using FootballSocialMedia.Repository.Context;
@@ -13,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRepositoryExtension(builder.Configuration);
 builder.Services.AddServiceExtension(builder.Configuration);
 builder.Services.AddCommonServiceExtension(typeof(ServiceAssembly),builder.Configuration);
+builder.Services.AddSecurityExtension();
+
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddIdentity<User, IdentityRole>(opt =>
 {
