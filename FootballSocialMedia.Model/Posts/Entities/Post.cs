@@ -1,4 +1,5 @@
 ﻿using Core.Persistence.Entity;
+using FootballSocialMedia.Model.Comments;
 using FootballSocialMedia.Model.Users.Entities;
 
 namespace FootballSocialMedia.Model.Posts.Entities;
@@ -12,4 +13,5 @@ public sealed class Post : BaseEntity<Guid>, IAuditEntity
     public DateTime UpdatedTime { get; set; }
     public string UserId { get; set; } = default!;
     public User User { get; set; } = default!;
+    public List<Comment> Comments { get; set; } = new List<Comment>();
 }

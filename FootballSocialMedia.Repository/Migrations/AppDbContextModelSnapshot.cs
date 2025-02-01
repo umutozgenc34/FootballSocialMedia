@@ -22,6 +22,40 @@ namespace FootballSocialMedia.Repository.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Comments.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Comments", (string)null);
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -54,7 +88,11 @@ namespace FootballSocialMedia.Repository.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Content")
+                        .HasDatabaseName("IX_Posts_Content");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Posts_UserId");
 
                     b.ToTable("Posts", (string)null);
                 });
@@ -314,6 +352,25 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Comments.Comment", b =>
+                {
+                    b.HasOne("FootballSocialMedia.Model.Posts.Entities.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "User")
+                        .WithMany("Comments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "User")
@@ -387,8 +444,15 @@ namespace FootballSocialMedia.Repository.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
+                {
+                    b.Navigation("Comments");
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Users.Entities.User", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("Posts");
 
                     b.Navigation("Profile")

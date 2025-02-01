@@ -26,8 +26,19 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.HasOne(p => p.User)  
               .WithMany(u => u.Posts) 
               .HasForeignKey(p => p.UserId)  
-              .OnDelete(DeleteBehavior.Cascade);  
+              .OnDelete(DeleteBehavior.Cascade);
 
-        
+        builder.HasMany(p => p.Comments)  
+               .WithOne(c => c.Post)    
+               .HasForeignKey(c => c.PostId) 
+               .OnDelete(DeleteBehavior.Cascade);
+
+
+        builder.HasIndex(p => p.Content)
+               .HasDatabaseName("IX_Posts_Content");
+
+        builder.HasIndex(p => p.UserId)
+               .HasDatabaseName("IX_Posts_UserId");
+
     }
 }
