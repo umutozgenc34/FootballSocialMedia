@@ -63,6 +63,7 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
     {
         var posts = await postRepository.GetAllAsync();
         var postsAsDto = mapper.Map<List<PostDto>>(posts);
+        
 
         return ServiceResult<List<PostDto>>.Success(postsAsDto,HttpStatusCode.OK);
       

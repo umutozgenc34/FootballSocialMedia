@@ -30,5 +30,7 @@ public class LikeConfiguration : IEntityTypeConfiguration<Like>
                .WithMany(c => c.Likes)
                .HasForeignKey(l => l.CommentId)
                .OnDelete(DeleteBehavior.ClientSetNull);
+
+        
     }
 }

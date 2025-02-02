@@ -11,8 +11,9 @@ public class PostMappingProfile : Profile
     {
         CreateMap<CreatePostRequest, Post>();
         CreateMap<UpdatePostRequest, Post>();
-        CreateMap<Post, PostDto>().ReverseMap();
+        CreateMap<Post, PostDto>().ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : "Unknown")).ReverseMap();
         CreateMap<Post, CreatePostResponse>();
-        CreateMap<Post, PostWithCommentsResponse>().ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments));
+        CreateMap<Post, PostWithCommentsResponse>().ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments))
+       .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : "Unknown")).ReverseMap(); 
     }
 }

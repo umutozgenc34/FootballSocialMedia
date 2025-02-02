@@ -1,3 +1,11 @@
 ﻿namespace FootballSocialMedia.Model.Comments.Dtos.Responses;
 
-public sealed record CreateCommentResponse(Guid Id,string Content,string UserId,Guid PostId,DateTime CreatedTime);
+public sealed class CreateCommentResponse
+{
+    public Guid Id { get; set; }
+    public string Content { get; init; }
+    public string Username { get; init; }
+    public string PostContent { get; init; }
+    public DateTime CreatedTime { get; init; }
+
+}

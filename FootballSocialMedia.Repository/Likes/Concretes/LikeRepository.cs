@@ -16,7 +16,9 @@ public class LikeRepository(AppDbContext context) : EfBaseRepository<AppDbContex
 
     public async Task<List<Like>> GetUserLikesAsync(string userId) =>  await Context.Likes
         .Where(l => l.UserId == userId)
-        .ToListAsync();
+            .Include(l => l.Post)  
+            .Include(l => l.Comment)  
+            .ToListAsync();
 
     public async Task AddLikeAsync(Like like) =>
       await Context.Likes.AddAsync(like);

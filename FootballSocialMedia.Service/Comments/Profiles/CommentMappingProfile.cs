@@ -11,7 +11,14 @@ public class CommentMappingProfile : Profile
     {
         CreateMap<CreateCommentRequest, Comment>();
         CreateMap<UpdateCommentRequest, Comment>();
-        CreateMap<CommentDto, Comment>().ReverseMap();
-        CreateMap<Comment, CreateCommentResponse>();
+
+        CreateMap<Comment, CommentDto>()
+        .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : "Unknown"))
+        .ForMember(dest => dest.PostContent, opt => opt.MapFrom(src => src.Post != null ? src.Post.Content : "No Content"));
+
+        CreateMap<CommentDto, Comment>(); //nadir
+        CreateMap<Comment, CreateCommentResponse>()
+        .ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.User != null ? src.User.UserName : "Unknown"))
+        .ForMember(dest => dest.PostContent, opt => opt.MapFrom(src => src.Post != null ? src.Post.Content : "No Content")); 
     }
 }

@@ -22,6 +22,7 @@ public class CommentService(ICommentRepository commentRepository, IMapper mapper
         await unitOfWork.SaveChangesAsync();
 
         var commentAsDto = mapper.Map<CreateCommentResponse>(comment);
+        
         return ServiceResult<CreateCommentResponse>.SuccessAsCreated(commentAsDto, $"api/comments/{comment.Id}");
     }
 
