@@ -1,4 +1,5 @@
 ﻿using Core.Persistence.Entity;
+using FootballSocialMedia.Model.Likes.Entities;
 using FootballSocialMedia.Model.Posts.Entities;
 using FootballSocialMedia.Model.Users.Entities;
 
@@ -13,4 +14,6 @@ public sealed class Comment : BaseEntity<Guid>, IAuditEntity
     public Post Post { get; set; } = default!;
     public DateTime CreatedTime { get;set; }
     public DateTime UpdatedTime { get; set; }
+
+    public List<Like> Likes { get; set; } = new List<Like>();
 }

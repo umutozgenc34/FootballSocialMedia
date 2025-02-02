@@ -56,6 +56,34 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.ToTable("Comments", (string)null);
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Likes.Entities.Like", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CommentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("PostId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Likes", (string)null);
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -371,6 +399,29 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Likes.Entities.Like", b =>
+                {
+                    b.HasOne("FootballSocialMedia.Model.Comments.Comment", "Comment")
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("FootballSocialMedia.Model.Posts.Entities.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId");
+
+                    b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "User")
@@ -444,9 +495,16 @@ namespace FootballSocialMedia.Repository.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Comments.Comment", b =>
+                {
+                    b.Navigation("Likes");
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("Likes");
                 });
 
             modelBuilder.Entity("FootballSocialMedia.Model.Users.Entities.User", b =>

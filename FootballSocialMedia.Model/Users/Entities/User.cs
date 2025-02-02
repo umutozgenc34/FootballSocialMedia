@@ -13,4 +13,5 @@ public sealed class User : IdentityUser, IAuditEntity
     public UserProfile Profile { get; set; } = default!;
     public List<Post> Posts { get; set; } = new List<Post>();
     public List<Comment> Comments { get; set; } = new List<Comment>();
+    
 }
