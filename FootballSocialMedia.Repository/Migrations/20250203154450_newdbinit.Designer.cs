@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FootballSocialMedia.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250203015651_UpdateImageFile")]
-    partial class UpdateImageFile
+    [Migration("20250203154450_newdbinit")]
+    partial class newdbinit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,6 +57,29 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Comments", (string)null);
+                });
+
+            modelBuilder.Entity("FootballSocialMedia.Model.Follows.Entities.Follow", b =>
+                {
+                    b.Property<string>("FollowerId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowingId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UpdatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("FollowerId", "FollowingId");
+
+                    b.HasIndex("FollowingId");
+
+                    b.ToTable("Follows");
                 });
 
             modelBuilder.Entity("FootballSocialMedia.Model.Likes.Entities.Like", b =>
@@ -437,6 +460,25 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.Navigation("Post");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("FootballSocialMedia.Model.Follows.Entities.Follow", b =>
+                {
+                    b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "Follower")
+                        .WithMany()
+                        .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "Following")
+                        .WithMany()
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+
+                    b.Navigation("Following");
                 });
 
             modelBuilder.Entity("FootballSocialMedia.Model.Likes.Entities.Like", b =>

@@ -4,6 +4,8 @@ using FootballSocialMedia.Service.Authentications.Abstracts;
 using FootballSocialMedia.Service.Authentications.Concretes;
 using FootballSocialMedia.Service.Comments.Abstracts;
 using FootballSocialMedia.Service.Comments.Concretes;
+using FootballSocialMedia.Service.Follows.Abstracts;
+using FootballSocialMedia.Service.Follows.Concretes;
 using FootballSocialMedia.Service.JWT.Abstracts;
 using FootballSocialMedia.Service.JWT.Concretes;
 using FootballSocialMedia.Service.Likes.Abstracts;
@@ -37,6 +39,7 @@ public static class ServiceExtensions
         services.AddScoped<ICommentService,CommentService>();
         services.AddScoped<ILikeService,LikeService>();
         services.AddScoped<INewsService,NewsService>();
+        services.AddScoped<IFollowService, FollowService>();
 
         services.Configure<CustomTokenOption>(configuration.GetSection("TokenOption"));
 

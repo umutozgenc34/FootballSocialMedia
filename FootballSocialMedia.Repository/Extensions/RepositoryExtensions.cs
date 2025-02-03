@@ -2,6 +2,8 @@
 using FootballSocialMedia.Repository.Comments.Abstracts;
 using FootballSocialMedia.Repository.Comments.Concretes;
 using FootballSocialMedia.Repository.Context;
+using FootballSocialMedia.Repository.Follows.Abstracts;
+using FootballSocialMedia.Repository.Follows.Concretes;
 using FootballSocialMedia.Repository.Interceptors;
 using FootballSocialMedia.Repository.Likes.Abstracts;
 using FootballSocialMedia.Repository.Likes.Concretes;
@@ -45,6 +47,7 @@ public static class RepositoryExtensions
         services.AddScoped<INewsRepository,NewsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserProfileRepository,UserProfileRepository>();
+        services.AddScoped<IFollowRepository, FollowRepository>();
 
         services.AddStackExchangeRedisCache(options =>
         {
