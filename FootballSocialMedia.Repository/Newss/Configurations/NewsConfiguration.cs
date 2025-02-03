@@ -22,9 +22,10 @@ public class NewsConfiguration : IEntityTypeConfiguration<News>
 
         builder.Property(n => n.Source)
             .IsRequired()
-            .HasMaxLength(255); 
+            .HasMaxLength(255);
 
         builder.Property(n => n.ImageUrl)
+            .IsRequired()
             .HasMaxLength(500);
     }
 }

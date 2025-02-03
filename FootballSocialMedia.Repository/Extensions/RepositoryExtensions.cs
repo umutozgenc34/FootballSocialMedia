@@ -5,6 +5,8 @@ using FootballSocialMedia.Repository.Context;
 using FootballSocialMedia.Repository.Interceptors;
 using FootballSocialMedia.Repository.Likes.Abstracts;
 using FootballSocialMedia.Repository.Likes.Concretes;
+using FootballSocialMedia.Repository.Newss.Abstracts;
+using FootballSocialMedia.Repository.Newss.Concretes;
 using FootballSocialMedia.Repository.Posts.Abstracts;
 using FootballSocialMedia.Repository.Posts.Concretes;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
@@ -40,6 +42,7 @@ public static class RepositoryExtensions
         services.Decorate<IPostRepository,PostRepositoryWithCache>();
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<ILikeRepository,LikeRepository>();
+        services.AddScoped<INewsRepository,NewsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserProfileRepository,UserProfileRepository>();
 

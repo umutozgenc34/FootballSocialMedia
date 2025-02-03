@@ -7,7 +7,7 @@ public class News : BaseEntity<Guid>, IAuditEntity
     public string Title { get; set; } = null!;
     public string Content { get; set; } = null!;
     public string Source { get; set; } = null!;
-    public string? ImageUrl { get; set; } 
+    public string ImageUrl { get; set; } = null!;
     public DateTime CreatedTime { get ; set; }
     public DateTime UpdatedTime { get; set; }
 }
