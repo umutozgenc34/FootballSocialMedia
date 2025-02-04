@@ -1,10 +1,12 @@
 using Core.Infrastructure.Extensions;
+using Core.Infrastructure.SignalR;
 using Core.Security.Extensions;
 using FootballSocialMedia.Api.ExceptionHandler;
 using FootballSocialMedia.Model.Users.Entities;
 using FootballSocialMedia.Repository.Context;
 using FootballSocialMedia.Repository.Extensions;
 using FootballSocialMedia.Service;
+using FootballSocialMedia.Service.ChatHubs;
 using FootballSocialMedia.Service.Extensions;
 using Microsoft.AspNetCore.Identity;
 
@@ -40,6 +42,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+app.UseRouting();
+
 app.UseCors("AllowAll");
 app.UseExceptionHandler(x => { });
 
@@ -53,6 +57,11 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHub<ChatHub>("/chathub");
+});
 
 app.MapControllers();
 

@@ -1,4 +1,6 @@
 ﻿using Core.Persistence.Options;
+using FootballSocialMedia.Repository.ChatMessages.Abstracts;
+using FootballSocialMedia.Repository.ChatMessages.Concretes;
 using FootballSocialMedia.Repository.Comments.Abstracts;
 using FootballSocialMedia.Repository.Comments.Concretes;
 using FootballSocialMedia.Repository.Context;
@@ -48,6 +50,7 @@ public static class RepositoryExtensions
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserProfileRepository,UserProfileRepository>();
         services.AddScoped<IFollowRepository, FollowRepository>();
+        services.AddScoped<IChatRepository,ChatRepository>();
 
         services.AddStackExchangeRedisCache(options =>
         {

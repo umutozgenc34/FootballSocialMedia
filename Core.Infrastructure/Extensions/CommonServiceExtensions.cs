@@ -7,6 +7,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Core.Infrastructure.SignalR;
 
 namespace Core.Infrastructure.Extensions;
 
@@ -21,8 +22,8 @@ public static class CommonServiceExtensions
         services.AddScoped<ICloudinaryService, CloudinaryService>();
         services.Configure<CloudinarySettings>(configuration.GetSection("CloudinarySettings"));
 
-        services.AddScoped<IIdGenerator, IdGenerator>();   
-       
+        services.AddScoped<IIdGenerator, IdGenerator>();
+        services.AddSignalR();
         return services;
     }
 }

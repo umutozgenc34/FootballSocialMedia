@@ -2,6 +2,9 @@
 using Core.Security.Token.Options;
 using FootballSocialMedia.Service.Authentications.Abstracts;
 using FootballSocialMedia.Service.Authentications.Concretes;
+using FootballSocialMedia.Service.ChatHubs;
+using FootballSocialMedia.Service.ChatMessages.Abstracts;
+using FootballSocialMedia.Service.ChatMessages.Concretes;
 using FootballSocialMedia.Service.Comments.Abstracts;
 using FootballSocialMedia.Service.Comments.Concretes;
 using FootballSocialMedia.Service.Follows.Abstracts;
@@ -40,6 +43,10 @@ public static class ServiceExtensions
         services.AddScoped<ILikeService,LikeService>();
         services.AddScoped<INewsService,NewsService>();
         services.AddScoped<IFollowService, FollowService>();
+        services.AddScoped<IChatService, ChatService>();
+
+
+        services.AddTransient<ChatHub>();
 
         services.Configure<CustomTokenOption>(configuration.GetSection("TokenOption"));
 

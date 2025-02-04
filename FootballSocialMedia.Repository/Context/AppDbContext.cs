@@ -1,4 +1,5 @@
-﻿using FootballSocialMedia.Model.Comments;
+﻿using FootballSocialMedia.Model.ChatMessages.Entities;
+using FootballSocialMedia.Model.Comments;
 using FootballSocialMedia.Model.Follows.Entities;
 using FootballSocialMedia.Model.Likes.Entities;
 using FootballSocialMedia.Model.News.Entities;
@@ -19,6 +20,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<Like> Likes { get; set; }
     public DbSet<News> News { get; set; }
     public DbSet<Follow> Follows { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
     
 
