@@ -1,6 +1,7 @@
 using Core.Infrastructure.Extensions;
 using Core.Security.Extensions;
 using FootballSocialMedia.Api.ExceptionHandler;
+using FootballSocialMedia.Model.ChatMessages.Entities;
 using FootballSocialMedia.Model.Users.Entities;
 using FootballSocialMedia.Repository.Context;
 using FootballSocialMedia.Repository.Extensions;
@@ -10,7 +11,6 @@ using FootballSocialMedia.Service.Extensions;
 using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 builder.Services.AddRepositoryExtension(builder.Configuration);
 builder.Services.AddServiceExtension(builder.Configuration);

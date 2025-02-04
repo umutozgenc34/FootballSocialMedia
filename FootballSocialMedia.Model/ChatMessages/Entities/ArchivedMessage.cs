@@ -6,8 +6,8 @@ namespace FootballSocialMedia.Model.ChatMessages.Entities;
 public class ArchivedMessage
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; } 
+    [BsonRepresentation(BsonType.String)] 
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [BsonElement("SenderId")]
     public string SenderId { get; set; } 
