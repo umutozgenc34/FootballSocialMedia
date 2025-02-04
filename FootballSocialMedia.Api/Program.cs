@@ -1,5 +1,4 @@
 using Core.Infrastructure.Extensions;
-using Core.Infrastructure.SignalR;
 using Core.Security.Extensions;
 using FootballSocialMedia.Api.ExceptionHandler;
 using FootballSocialMedia.Model.Users.Entities;

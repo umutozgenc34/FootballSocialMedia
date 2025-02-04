@@ -57,6 +57,7 @@ public static class RepositoryExtensions
             options.Configuration = configuration.GetConnectionString("Redis");
         });
 
+        services.AddSingleton<MongoDbContext>();
 
         return services;
     }

@@ -18,9 +18,48 @@ services:
       - "6377:6379"
     volumes:
       - redis_data:/data
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fsm_rabbitmq_container
+    environment:
+      - RABBITMQ_DEFAULT_USER=Fsm12345
+      - RABBITMQ_DEFAULT_PASS=Fsm12345
+    ports:
+      - "5672:5672"    
+      - "15672:15672"  
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
 
+  mongodb:
+    image: mongo:latest
+    container_name: new_fsm_mongo_container
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=Fsm12345
+    ports:
+      - "27018:27017"
+    volumes:
+      - new_mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    container_name: new_fsm_mongo_express_container
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=Fsm12345  
+      - ME_CONFIG_MONGODB_SERVER=new_fsm_mongo_container 
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+    depends_on:
+      - mongodb  
+    ports:
+      - "8082:8081"   
 volumes:
   fsm_sql_data:
     driver: local
   redis_data:
     driver: local
+  rabbitmq_data:
+    driver: local
+  new_mongo_data:
+    driver: local  

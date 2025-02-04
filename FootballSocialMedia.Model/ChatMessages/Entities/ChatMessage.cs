@@ -1,6 +1,5 @@
 ﻿using Core.Persistence.Entity;
 using FootballSocialMedia.Model.Users.Entities;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FootballSocialMedia.Model.ChatMessages.Entities;
 

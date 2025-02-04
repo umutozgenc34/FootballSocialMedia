@@ -8,6 +8,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Core.Infrastructure.SignalR;
+using Core.Infrastructure.RabbitMQ;
 
 namespace Core.Infrastructure.Extensions;
 
@@ -24,6 +25,7 @@ public static class CommonServiceExtensions
 
         services.AddScoped<IIdGenerator, IdGenerator>();
         services.AddSignalR();
+        services.AddSingleton<RabbitMQClient>();
         return services;
     }
 }
