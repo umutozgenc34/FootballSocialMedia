@@ -15,6 +15,8 @@ using FootballSocialMedia.Service.Likes.Abstracts;
 using FootballSocialMedia.Service.Likes.Concretes;
 using FootballSocialMedia.Service.Newss.Abstracts;
 using FootballSocialMedia.Service.Newss.Concretes;
+using FootballSocialMedia.Service.Notifications.Abstracts;
+using FootballSocialMedia.Service.Notifications.Concretes;
 using FootballSocialMedia.Service.Posts.Abstracts;
 using FootballSocialMedia.Service.Posts.Concretes;
 using FootballSocialMedia.Service.RabbitMQ;
@@ -45,11 +47,15 @@ public static class ServiceExtensions
         services.AddScoped<INewsService,NewsService>();
         services.AddScoped<IFollowService, FollowService>();
         services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<INotificationService, NotificationService>();
 
 
         services.AddSingleton<MessageArchiverProducer>();
         services.AddHostedService<MessageArchiverBackgroundService>();
         services.AddHostedService<MessageArchiverConsumer>();
+        services.AddSingleton<NotificationPublisher>();
+        services.AddSingleton<NotificationConsumer>();
+        services.AddHostedService<NotificationWorker>();
 
         services.AddTransient<ChatHub>();
 

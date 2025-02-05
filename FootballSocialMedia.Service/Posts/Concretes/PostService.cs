@@ -8,7 +8,6 @@ using FootballSocialMedia.Model.Posts.Entities;
 using FootballSocialMedia.Repository.Posts.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
 using FootballSocialMedia.Service.Posts.Abstracts;
-using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 namespace FootballSocialMedia.Service.Posts.Concretes;

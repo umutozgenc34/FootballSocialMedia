@@ -3,14 +3,18 @@ using Core.CrossCuttingConcerns.Response;
 using FootballSocialMedia.Model.Follows.Dtos.Requests;
 using FootballSocialMedia.Model.Follows.Dtos.Responses;
 using FootballSocialMedia.Model.Follows.Entities;
+using FootballSocialMedia.Model.Notifications.Entities;
+using FootballSocialMedia.Model.Notifications.Enums;
 using FootballSocialMedia.Repository.Follows.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
 using FootballSocialMedia.Service.Follows.Abstracts;
+using FootballSocialMedia.Service.RabbitMQ;
 using System.Net;
 
 namespace FootballSocialMedia.Service.Follows.Concretes;
 
-public class FollowService(IFollowRepository followRepository, IMapper mapper, IUnitOfWork unitOfWork) : IFollowService
+public class FollowService(IFollowRepository followRepository, IMapper mapper,
+    IUnitOfWork unitOfWork,NotificationPublisher notificationPublisher) : IFollowService
 {
     public async Task<ServiceResult<FollowDto>> FollowAsync(CreateFollowRequest request)
     {
@@ -24,6 +28,16 @@ public class FollowService(IFollowRepository followRepository, IMapper mapper, I
 
         await followRepository.AddAsync(follow);
         await unitOfWork.SaveChangesAsync();
+
+        var notification = new Notification
+        {
+            UserId = request.FollowingId, 
+            SenderId = request.FollowerId, 
+            Type = NotificationType.Follow, 
+            Content = $"{request.FollowerId} started following you.", 
+            IsRead = false
+        };
+         notificationPublisher.SendNotification(notification);
 
         var followResponse = mapper.Map<FollowDto>(follow);
         return ServiceResult<FollowDto>.SuccessAsCreated(followResponse, $"api/follows/{follow.FollowerId}/{follow.FollowingId}");

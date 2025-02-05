@@ -6,14 +6,18 @@ using Core.Infrastructure.Services.IdGenerator.Abstracts;
 using FootballSocialMedia.Model.Likes.Dtos.Requests;
 using FootballSocialMedia.Model.Likes.Dtos.Responses;
 using FootballSocialMedia.Model.Likes.Entities;
+using FootballSocialMedia.Model.Notifications.Entities;
+using FootballSocialMedia.Model.Notifications.Enums;
 using FootballSocialMedia.Repository.Likes.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
 using FootballSocialMedia.Service.Likes.Abstracts;
+using FootballSocialMedia.Service.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 
 
-public class LikeService(ILikeRepository likeRepository, IMapper mapper, IUnitOfWork unitOfWork,IIdGenerator idGenerator) : ILikeService
+public class LikeService(ILikeRepository likeRepository, IMapper mapper, IUnitOfWork unitOfWork
+    ,IIdGenerator idGenerator,NotificationPublisher notificationPublisher) : ILikeService
 {
     public async Task<ServiceResult<LikeDto>> LikeAsync(CreateLikeRequest request)
     {
@@ -29,6 +33,33 @@ public class LikeService(ILikeRepository likeRepository, IMapper mapper, IUnitOf
         like.Id=idGenerator.GenerateId();
         await likeRepository.AddLikeAsync(like);
         await unitOfWork.SaveChangesAsync();
+
+        if (request.PostId != null)
+        {
+            var notification = new Notification
+            {
+                UserId = request.UserId, 
+                SenderId = request.UserId, 
+                Type = NotificationType.Like, 
+                Content = $"{request.UserId} liked your post.", 
+                PostId = request.PostId.ToString(), 
+                IsRead = false 
+            };
+            notificationPublisher.SendNotification(notification); 
+        }
+        else if (request.CommentId != null)
+        {
+            var notification = new Notification
+            {
+                UserId = request.UserId, 
+                SenderId = request.UserId, 
+                Type = NotificationType.Like, 
+                Content = $"{request.UserId} liked your comment.",
+                CommentId = request.CommentId.ToString(),
+                IsRead = false 
+            };
+            notificationPublisher.SendNotification(notification); 
+        }
 
         var response = mapper.Map<LikeDto>(like);
         return ServiceResult<LikeDto>.Success(response, HttpStatusCode.Created);

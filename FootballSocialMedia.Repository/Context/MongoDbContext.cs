@@ -14,6 +14,7 @@ public class MongoDbContext
         _database = client.GetDatabase("SocialMediaDb"); 
     }
 
+    public IMongoDatabase GetDatabase() => _database;
     public IMongoCollection<ArchivedMessage> ArchivedMessages
         => _database.GetCollection<ArchivedMessage>("ArchivedMessages");
 

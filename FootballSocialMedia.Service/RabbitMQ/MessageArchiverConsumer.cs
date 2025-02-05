@@ -3,6 +3,7 @@ using FootballSocialMedia.Model.ChatMessages.Entities;
 using FootballSocialMedia.Repository.Context;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
@@ -24,10 +25,10 @@ public class MessageArchiverConsumer : BackgroundService //mesajları dinleyip m
         _channel.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var consumer = new EventingBasicConsumer(_channel);
-        consumer.Received += (model, ea) =>
+        consumer.Received += async (model, ea) =>
         {
             var body = ea.Body.ToArray();
             var jsonMessage = Encoding.UTF8.GetString(body);
@@ -41,8 +42,10 @@ public class MessageArchiverConsumer : BackgroundService //mesajları dinleyip m
                 {
                     archivedMessage.Id = ObjectId.GenerateNewId().ToString();
                 }
+                var filter = Builders<ArchivedMessage>.Filter.Eq(msg => msg.Id, archivedMessage.Id);
+                var update = Builders<ArchivedMessage>.Update.Set(msg => msg, archivedMessage);
 
-                _mongoDbContext.ArchivedMessages.InsertOne(archivedMessage);
+                await _mongoDbContext.ArchivedMessages.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
             }
 
             _channel.BasicAck(ea.DeliveryTag, false);
@@ -51,6 +54,6 @@ public class MessageArchiverConsumer : BackgroundService //mesajları dinleyip m
 
         _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
 
-        return Task.CompletedTask;
+        await Task.Delay(-1, stoppingToken);
     }
 }
