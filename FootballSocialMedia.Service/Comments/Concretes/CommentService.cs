@@ -7,16 +7,20 @@ using FootballSocialMedia.Model.Comments.Dtos.Responses;
 using FootballSocialMedia.Repository.Comments.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
 using FootballSocialMedia.Service.Comments.Abstracts;
+using FootballSocialMedia.Service.Elasticsearch.Abstracts;
 using System.Net;
 
 namespace FootballSocialMedia.Service.Comments.Concretes;
 
-public class CommentService(ICommentRepository commentRepository, IMapper mapper, IUnitOfWork unitOfWork,IIdGenerator idGenerator) : ICommentService
+public class CommentService(ICommentRepository commentRepository, IMapper mapper,
+    IUnitOfWork unitOfWork,IIdGenerator idGenerator,IElasticsearchService elasticsearchService) : ICommentService
 {
     public async Task<ServiceResult<CreateCommentResponse>> CreateAsync(CreateCommentRequest request)
     {
         var comment = mapper.Map<Comment>(request);
         comment.Id = idGenerator.GenerateId();
+
+        await elasticsearchService.IndexCommentAsync(comment);
 
         await commentRepository.AddAsync(comment);
         await unitOfWork.SaveChangesAsync();
@@ -69,6 +73,8 @@ public class CommentService(ICommentRepository commentRepository, IMapper mapper
         }
 
         comment.Content = request.Content;
+
+        await elasticsearchService.IndexCommentAsync(comment);
 
         commentRepository.Update(comment);
         await unitOfWork.SaveChangesAsync();

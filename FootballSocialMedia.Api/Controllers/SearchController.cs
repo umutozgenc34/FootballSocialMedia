@@ -1,0 +1,29 @@
+﻿using FootballSocialMedia.Service.Elasticsearch.Abstracts;
+using Microsoft.AspNetCore.Mvc;
+
+namespace FootballSocialMedia.Api.Controllers
+{
+    public class SearchController : CustomBaseController
+    {
+        private readonly IElasticsearchService _elasticsearchService;
+
+        public SearchController(IElasticsearchService elasticsearchService)
+        {
+            _elasticsearchService = elasticsearchService;
+        }
+
+        
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string searchText)
+        {
+            if (string.IsNullOrEmpty(searchText))
+            {
+                return BadRequest("Search text is required.");
+            }
+
+            var result = await _elasticsearchService.SearchAllAsync(searchText);
+
+            return Ok(result);
+        }
+    }
+}

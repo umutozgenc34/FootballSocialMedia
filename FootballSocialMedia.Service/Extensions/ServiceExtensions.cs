@@ -7,6 +7,7 @@ using FootballSocialMedia.Service.ChatMessages.Abstracts;
 using FootballSocialMedia.Service.ChatMessages.Concretes;
 using FootballSocialMedia.Service.Comments.Abstracts;
 using FootballSocialMedia.Service.Comments.Concretes;
+using FootballSocialMedia.Service.Elasticsearch.Abstracts;
 using FootballSocialMedia.Service.Follows.Abstracts;
 using FootballSocialMedia.Service.Follows.Concretes;
 using FootballSocialMedia.Service.JWT.Abstracts;
@@ -56,6 +57,8 @@ public static class ServiceExtensions
         services.AddSingleton<NotificationPublisher>();
         services.AddSingleton<NotificationConsumer>();
         services.AddHostedService<NotificationWorker>();
+
+        services.AddScoped<IElasticsearchService,ElasticsearchService>();
 
         services.AddTransient<ChatHub>();
 

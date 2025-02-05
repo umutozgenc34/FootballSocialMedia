@@ -7,12 +7,14 @@ using FootballSocialMedia.Model.Posts.Dtos.Responses;
 using FootballSocialMedia.Model.Posts.Entities;
 using FootballSocialMedia.Repository.Posts.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
+using FootballSocialMedia.Service.Elasticsearch.Abstracts;
 using FootballSocialMedia.Service.Posts.Abstracts;
 using System.Net;
 
 namespace FootballSocialMedia.Service.Posts.Concretes;
 
-public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWork unitOfWork,IIdGenerator idGenerator,ICloudinaryService cloudinaryService) : IPostService
+public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWork unitOfWork,
+    IIdGenerator idGenerator,ICloudinaryService cloudinaryService,IElasticsearchService elasticsearchService) : IPostService
 {
     public async Task<ServiceResult<CreatePostResponse>> CreateAsync(CreatePostRequest request)
     {
@@ -36,6 +38,8 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
         post.UserId = request.UserId;
         post.ImageUrls = imageUrls;
         post.VideoUrls = videoUrls;
+
+        await elasticsearchService.IndexPostAsync(post);
 
         await postRepository.AddAsync(post);
         await unitOfWork.SaveChangesAsync();
@@ -103,6 +107,8 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 
         post.Content = request.Content;
 
+        await elasticsearchService.IndexPostAsync(post);
+
         postRepository.Update(post);
         await unitOfWork.SaveChangesAsync();
 
@@ -116,5 +122,7 @@ public class PostService(IPostRepository postRepository,IMapper mapper,IUnitOfWo
 
         return ServiceResult<List<PostWithCommentsResponse>>.Success(postsAsDto, HttpStatusCode.OK);
     }
+
+    
 
 }
