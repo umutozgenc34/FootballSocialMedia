@@ -5,15 +5,15 @@ using System.Linq.Expressions;
 
 namespace Core.Persistence.Repositories.Concretes;
 
-public class EfBaseRepository<TContext,TEntity,TId>(TContext context) : IEfBaseRepository<TEntity,TId>
+public abstract class EfBaseRepository<TContext,TEntity,TId>(TContext context) : IEfBaseRepository<TEntity,TId>
     where TEntity : BaseEntity<TId>,new()
     where TContext : DbContext
 {
     protected TContext Context { get; } = context;
 
-    public async Task<List<TEntity>> GetAllAsync() => await Context.Set<TEntity>().ToListAsync();
+    public virtual async Task<List<TEntity>> GetAllAsync() => await Context.Set<TEntity>().ToListAsync();
 
-    public ValueTask<TEntity?> GetByIdAsync(TId id) => Context.Set<TEntity>().FindAsync(id);
+    public virtual ValueTask<TEntity?> GetByIdAsync(TId id) => Context.Set<TEntity>().FindAsync(id);
 
     public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>>? predicate = null)
     {

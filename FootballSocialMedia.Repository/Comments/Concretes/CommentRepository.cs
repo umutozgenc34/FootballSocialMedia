@@ -8,6 +8,17 @@ namespace FootballSocialMedia.Repository.Comments.Concretes;
 
 public class CommentRepository(AppDbContext context) : EfBaseRepository<AppDbContext, Comment, Guid>(context), ICommentRepository
 {
+
+    public async override Task<List<Comment>> GetAllAsync()
+    {
+       return await Context.Comments
+            .Include(x => x.User)
+            .Include(x => x.Post)
+            .Include(x => x.Likes)
+            .ToListAsync();
+
+    }
+
     public async Task<List<Comment>> GetCommentsByPostIdAsync(Guid postId) => await Context.Comments.
         Where(x => x.PostId == postId).
         OrderByDescending(x => x.CreatedTime).

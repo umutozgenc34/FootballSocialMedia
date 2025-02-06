@@ -6,6 +6,7 @@ using FootballSocialMedia.Model.Posts.Dtos.Responses;
 using FootballSocialMedia.Model.Posts.Entities;
 using FootballSocialMedia.Repository.Posts.Abstracts;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
+using FootballSocialMedia.Service.Elasticsearch.Abstracts;
 using FootballSocialMedia.Service.Posts.Concretes;
 using Moq;
 using System.Net;
@@ -20,6 +21,7 @@ namespace Service.Test
         private Mock<IUnitOfWork> _unitOfWorkMock;
         private Mock<IIdGenerator> _idGeneratorMock;
         private Mock<ICloudinaryService> _cloudinaryServiceMock;
+        private Mock<IElasticsearchService> _elasticsearchServiceMock;
         private PostService _postService;
 
         [SetUp]
@@ -30,13 +32,16 @@ namespace Service.Test
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _idGeneratorMock = new Mock<IIdGenerator>();
             _cloudinaryServiceMock = new Mock<ICloudinaryService>();
+            _elasticsearchServiceMock = new Mock<IElasticsearchService>();
 
             _postService = new PostService(
                 _postRepositoryMock.Object,
                 _mapperMock.Object,
                 _unitOfWorkMock.Object,
                 _idGeneratorMock.Object,
-                _cloudinaryServiceMock.Object
+                _cloudinaryServiceMock.Object,
+                _elasticsearchServiceMock.Object
+                
             );
         }
 

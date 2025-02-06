@@ -40,8 +40,8 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.HasIndex(p => p.UserId)
                .HasDatabaseName("IX_Posts_UserId");
 
-        builder.Navigation(x => x.User).AutoInclude();
-        builder.Navigation(x=>x.Comments).AutoInclude();
-        builder.Navigation(x=>x.Likes).AutoInclude();
+        //builder.Navigation(x => x.User).AutoInclude();
+        //builder.Navigation(x=>x.Comments).AutoInclude();
+        //builder.Navigation(x=>x.Likes).AutoInclude();
     }
 }

@@ -8,8 +8,14 @@ public class PostRepositoryWithCache : IPostRepository
 {
     private readonly IPostRepository _innerRepository;  
     private readonly IDistributedCache _distributedCache;  
-    private const string CacheKeyPrefix = "post_";  
+    private const string CacheKeyPrefix = "post_";
 
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
+    {
+        ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve, 
+        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        IgnoreReadOnlyProperties = true
+    };
     public PostRepositoryWithCache(IPostRepository innerRepository, IDistributedCache distributedCache)
     {
         _innerRepository = innerRepository;
@@ -23,13 +29,14 @@ public class PostRepositoryWithCache : IPostRepository
         var cachedData = await _distributedCache.GetStringAsync(cacheKey);
         if (cachedData != null)
         {
-            var cachedPosts = JsonSerializer.Deserialize<List<Post>>(cachedData);
+            var cachedPosts = JsonSerializer.Deserialize<List<Post>>(cachedData, _jsonSerializerOptions);
             return cachedPosts!;
         }
 
         var posts = await _innerRepository.GetAllAsync();
 
-        await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(posts), new DistributedCacheEntryOptions
+
+        await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(posts, _jsonSerializerOptions), new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30)
         });
@@ -44,18 +51,19 @@ public class PostRepositoryWithCache : IPostRepository
         var cachedData = await _distributedCache.GetStringAsync(cacheKey);
         if (cachedData != null)
         {
-            return JsonSerializer.Deserialize<Post>(cachedData);
+            return JsonSerializer.Deserialize<Post>(cachedData, _jsonSerializerOptions);
         }
 
         var post = await _innerRepository.GetByIdAsync(id);
 
         if (post != null)
         {
-            await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(post), new DistributedCacheEntryOptions
+            await _distributedCache.SetStringAsync(cacheKey, JsonSerializer.Serialize(post, _jsonSerializerOptions), new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10) 
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
             });
         }
+
         return post;
     }
 
