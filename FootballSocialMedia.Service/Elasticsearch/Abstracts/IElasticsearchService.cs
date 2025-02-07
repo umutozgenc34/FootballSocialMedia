@@ -13,6 +13,7 @@ public interface IElasticsearchService
     Task<ISearchResponse<Post>> SearchPostsAsync(string searchText);
     Task<ISearchResponse<Comment>> SearchCommentsAsync(string searchText);
     Task<List<PostWithCommentsResponse>> SearchAllAsync(string searchText);
+    Task<ISearchResponse<Post>> AutoCompleteAsync(string prefix);
 
 
 }

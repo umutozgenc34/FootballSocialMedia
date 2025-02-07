@@ -25,5 +25,12 @@ namespace FootballSocialMedia.Api.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("autocomplete")]
+        public async Task<IActionResult> AutoComplete(string prefix)
+        {
+            var result = await _elasticsearchService.AutoCompleteAsync(prefix);
+            return Ok(result.Suggest);
+        }
     }
 }
