@@ -1,9 +1,12 @@
-﻿using FootballSocialMedia.Model.Users.Dtos.Requests;
+﻿using Asp.Versioning;
+using FootballSocialMedia.Model.Users.Dtos.Requests;
 using FootballSocialMedia.Service.Users.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
 
+[ApiVersion("1.0")]
+[ApiExplorerSettings(GroupName = "v1")]
 public class UsersController(IUserService userService) : CustomBaseController
 {
    

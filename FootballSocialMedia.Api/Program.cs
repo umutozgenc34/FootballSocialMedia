@@ -1,4 +1,5 @@
 using Core.Infrastructure.Extensions;
+using Core.Infrastructure.Versioning;
 using Core.Security.Extensions;
 using FootballSocialMedia.Api.ExceptionHandler;
 using FootballSocialMedia.Model.ChatMessages.Entities;
@@ -16,7 +17,7 @@ builder.Services.AddRepositoryExtension(builder.Configuration);
 builder.Services.AddServiceExtension(builder.Configuration);
 builder.Services.AddCommonServiceExtension(typeof(ServiceAssembly),builder.Configuration);
 builder.Services.AddSecurityExtension();
-
+builder.Services.AddVersioningExtension();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddIdentity<User, IdentityRole>(opt =>
@@ -46,6 +47,8 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+var apiVersionSet = app.AddVersionSetExtension();
 
 app.UseRouting();
 

@@ -1,11 +1,13 @@
-﻿using Core.Security.Dtos;
+﻿using Asp.Versioning;
+using Core.Security.Dtos;
 using FootballSocialMedia.Service.Authentications.Abstracts;
 using FootballSocialMedia.Service.Users.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
 
-
+[ApiVersion("1.0")]
+[ApiExplorerSettings(GroupName = "v1")]
 public class AuthController(IAuthenticationService authenticationService,IUserService userService) : CustomBaseController
 {
     [HttpPost("login")]

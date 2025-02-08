@@ -1,7 +1,11 @@
-﻿using FootballSocialMedia.Service.Notifications.Abstracts;
+﻿using Asp.Versioning;
+using FootballSocialMedia.Service.Notifications.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
+
+[ApiVersion("1.0")]
+[ApiExplorerSettings(GroupName = "v1")]
 
 public class NotificationsController(INotificationService notificationService): CustomBaseController
 {

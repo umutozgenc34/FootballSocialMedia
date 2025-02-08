@@ -1,12 +1,16 @@
-﻿using FootballSocialMedia.Model.Posts.Dtos.Requests;
+﻿using Asp.Versioning;
+using FootballSocialMedia.Model.Posts.Dtos.Requests;
 using FootballSocialMedia.Service.Posts.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
 
+[ApiVersion("1.0")]
+[ApiExplorerSettings(GroupName = "v1")]
+
 public class PostsController(IPostService postService) : CustomBaseController
 {
-    [HttpGet]
+    [HttpGet, MapToApiVersion("1.0")]
     public async Task<IActionResult> GetAllPosts() => CreateActionResult(await postService.GetAllAsync());
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetPost([FromRoute] Guid id) => CreateActionResult(await postService.GetByIdAsync(id));

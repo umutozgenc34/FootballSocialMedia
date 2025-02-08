@@ -1,8 +1,13 @@
-﻿using FootballSocialMedia.Model.Likes.Dtos.Requests;
+﻿using Asp.Versioning;
+using FootballSocialMedia.Model.Likes.Dtos.Requests;
 using FootballSocialMedia.Service.Likes.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
+
+[ApiVersion("1.0")]
+[ApiExplorerSettings(GroupName = "v1")]
+
 public class LikesController(ILikeService likeService) : CustomBaseController
 {
 

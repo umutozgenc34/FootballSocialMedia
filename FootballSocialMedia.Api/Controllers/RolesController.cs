@@ -1,9 +1,11 @@
-﻿using FootballSocialMedia.Service.Roles.Abstracts;
-using FootballSocialMedia.Service.Users.Concretes;
+﻿using Asp.Versioning;
+using FootballSocialMedia.Service.Roles.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
 
+[ApiVersion("1.0")]
+[ApiExplorerSettings(GroupName = "v1")]
 public class RolesController(IRoleService roleService) : CustomBaseController
 {
     [HttpPost("CreateUserRoles/{userName}")]

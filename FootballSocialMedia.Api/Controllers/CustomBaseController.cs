@@ -4,8 +4,7 @@ using System.Net;
 
 namespace FootballSocialMedia.Api.Controllers;
 
-
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 public class CustomBaseController : ControllerBase
 {
