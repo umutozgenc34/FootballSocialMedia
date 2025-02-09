@@ -176,6 +176,57 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.ToTable("News", (string)null);
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Polls.Entities.Poll", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("UpdatedTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Polls", (string)null);
+                });
+
+            modelBuilder.Entity("FootballSocialMedia.Model.Polls.Entities.PollOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OptionText")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("PollId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("VoteCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PollId");
+
+                    b.ToTable("PollOptions", (string)null);
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.Property<Guid>("Id")
@@ -552,6 +603,17 @@ namespace FootballSocialMedia.Repository.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("FootballSocialMedia.Model.Polls.Entities.PollOption", b =>
+                {
+                    b.HasOne("FootballSocialMedia.Model.Polls.Entities.Poll", "Poll")
+                        .WithMany("Options")
+                        .HasForeignKey("PollId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Poll");
+                });
+
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>
                 {
                     b.HasOne("FootballSocialMedia.Model.Users.Entities.User", "User")
@@ -628,6 +690,11 @@ namespace FootballSocialMedia.Repository.Migrations
             modelBuilder.Entity("FootballSocialMedia.Model.Comments.Comment", b =>
                 {
                     b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("FootballSocialMedia.Model.Polls.Entities.Poll", b =>
+                {
+                    b.Navigation("Options");
                 });
 
             modelBuilder.Entity("FootballSocialMedia.Model.Posts.Entities.Post", b =>

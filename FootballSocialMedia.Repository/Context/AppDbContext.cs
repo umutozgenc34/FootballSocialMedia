@@ -3,6 +3,7 @@ using FootballSocialMedia.Model.Comments;
 using FootballSocialMedia.Model.Follows.Entities;
 using FootballSocialMedia.Model.Likes.Entities;
 using FootballSocialMedia.Model.News.Entities;
+using FootballSocialMedia.Model.Polls.Entities;
 using FootballSocialMedia.Model.Posts.Entities;
 using FootballSocialMedia.Model.Users.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +22,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     public DbSet<News> News { get; set; }
     public DbSet<Follow> Follows { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Poll> Polls { get; set; }
+    public DbSet<PollOption> PollOptions { get; set; }
     public DbSet<UserRefreshToken> UserRefreshTokens { get; set; }
     
 
