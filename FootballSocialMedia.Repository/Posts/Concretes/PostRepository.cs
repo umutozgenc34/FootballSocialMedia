@@ -1,4 +1,4 @@
-﻿using Core.Persistence.Repositories.Concretes;
+using Core.Persistence.Repositories.Concretes;
 using FootballSocialMedia.Model.Posts.Entities;
 using FootballSocialMedia.Repository.Context;
 using FootballSocialMedia.Repository.Posts.Abstracts;
@@ -8,14 +8,30 @@ namespace FootballSocialMedia.Repository.Posts.Concretes;
 
 public class PostRepository(AppDbContext context) : EfBaseRepository<AppDbContext, Post, Guid>(context), IPostRepository
 {
-    public override async Task<List<Post>> GetAllAsync()=> 
-             await Context.Posts
+    public override async Task<List<Post>> GetAllAsync() =>
+        await Context.Posts
             .Include(x => x.User)
             .Include(x => x.Comments)
-            .Include(x=>x.Likes)
+            .Include(x => x.Likes)
+            .OrderByDescending(x => x.CreatedTime)
             .ToListAsync();
 
-    public override async ValueTask<Post?> GetByIdAsync(Guid id) => await Context.Posts.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
+    public override async ValueTask<Post?> GetByIdAsync(Guid id) =>
+        await Context.Posts.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
 
-    public async Task<List<Post>> GetPostsWithCommentsAsync() => await Context.Posts.Include(x => x.User).Include(x => x.Comments).ToListAsync();
+    public async Task<List<Post>> GetPostsWithCommentsAsync() =>
+        await Context.Posts.Include(x => x.User).Include(x => x.Comments).ToListAsync();
+
+    public async Task DeleteWithRelationsAsync(Post post)
+    {
+        var likes = await Context.Likes
+            .Where(l => l.PostId == post.Id || (l.Comment != null && l.Comment.PostId == post.Id))
+            .ToListAsync();
+        Context.Likes.RemoveRange(likes);
+
+        var comments = await Context.Comments.IgnoreAutoIncludes().Where(c => c.PostId == post.Id).ToListAsync();
+        Context.Comments.RemoveRange(comments);
+
+        Context.Posts.Remove(post);
+    }
 }

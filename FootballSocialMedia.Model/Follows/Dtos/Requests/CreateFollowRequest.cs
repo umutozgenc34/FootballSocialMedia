@@ -1,5 +1,4 @@
-﻿namespace FootballSocialMedia.Model.Follows.Dtos.Requests;
+namespace FootballSocialMedia.Model.Follows.Dtos.Requests;
 
-public sealed record CreateFollowRequest(string FollowerId, string FollowingId);
-
-
+// Takip eden (FollowerId) artık token'dan alınıyor.
+public sealed record CreateFollowRequest(string FollowingId);

@@ -1,4 +1,4 @@
-﻿using Core.Persistence.Repositories.Concretes;
+using Core.Persistence.Repositories.Concretes;
 using FootballSocialMedia.Model.Comments;
 using FootballSocialMedia.Repository.Comments.Abstracts;
 using FootballSocialMedia.Repository.Context;
@@ -29,4 +29,11 @@ public class CommentRepository(AppDbContext context) : EfBaseRepository<AppDbCon
         OrderByDescending(c => c.CreatedTime).
         ToListAsync();
 
+
+    public async Task DeleteWithLikesAsync(Comment comment)
+    {
+        var likes = await Context.Likes.Where(l => l.CommentId == comment.Id).ToListAsync();
+        Context.Likes.RemoveRange(likes);
+        Context.Comments.Remove(comment);
+    }
 }

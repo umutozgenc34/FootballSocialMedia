@@ -32,7 +32,7 @@ public class CloudinaryService : ICloudinaryService
                     File = new FileDescription(file.FileName, stream),
                     Folder = folder,
                     UseFilename = true,
-                    UniqueFilename = false
+                    UniqueFilename = true // aynı isimli dosyalar birbirinin üzerine yazılmasın
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -66,7 +66,7 @@ public class CloudinaryService : ICloudinaryService
                     File = new FileDescription(file.FileName, stream),
                     Folder = folder,
                     UseFilename = true,
-                    UniqueFilename = false
+                    UniqueFilename = true // aynı isimli dosyalar birbirinin üzerine yazılmasın
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);

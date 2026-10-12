@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace FootballSocialMedia.Model.Posts.Dtos.Requests;
 
-public sealed record CreatePostRequest(string UserId,string Content, IEnumerable<IFormFile>? ImageUrls,IEnumerable<IFormFile>? VideoUrls);
+// UserId artık token'dan alınıyor.
+public sealed record CreatePostRequest(string Content, IEnumerable<IFormFile>? ImageUrls, IEnumerable<IFormFile>? VideoUrls);

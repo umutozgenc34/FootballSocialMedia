@@ -1,3 +1,4 @@
-﻿namespace FootballSocialMedia.Model.Comments.Dtos.Requests;
+namespace FootballSocialMedia.Model.Comments.Dtos.Requests;
 
-public sealed record CreateCommentRequest(string Content,string UserId,Guid PostId);
+// UserId artık token'dan alınıyor.
+public sealed record CreateCommentRequest(string Content, Guid PostId);

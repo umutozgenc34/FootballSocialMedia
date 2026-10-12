@@ -1,4 +1,4 @@
-﻿using FootballSocialMedia.Model.Notifications.Enums;
+using FootballSocialMedia.Model.Notifications.Enums;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -14,6 +14,9 @@ public class Notification
     public string UserId { get; set; } = string.Empty; 
     [BsonElement("senderId")]
     public string SenderId { get; set; } = string.Empty; 
+
+    [BsonElement("senderUserName")]
+    public string? SenderUserName { get; set; }
 
     [BsonElement("type")]
     public NotificationType Type { get; set; }

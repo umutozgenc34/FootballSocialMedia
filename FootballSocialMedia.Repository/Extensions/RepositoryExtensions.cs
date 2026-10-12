@@ -1,4 +1,4 @@
-﻿using Core.Persistence.Options;
+using Core.Persistence.Options;
 using FootballSocialMedia.Repository.ChatMessages.Abstracts;
 using FootballSocialMedia.Repository.ChatMessages.Concretes;
 using FootballSocialMedia.Repository.Comments.Abstracts;
@@ -32,17 +32,25 @@ public static class RepositoryExtensions
     {
         services.AddDbContext<AppDbContext>(options =>
         {
-            var connectionStrings = configuration.GetSection
-            (ConnectionStringOption.Key).Get<ConnectionStringOption>();
-
-            options.UseSqlServer(connectionStrings!.SqlServer, sqlServerOptionsAction =>
+            // Docker/SQL Server olmadan hızlıca denemek için: appsettings'te "Database:UseInMemory": true
+            if (configuration.GetValue<bool>("Database:UseInMemory"))
             {
-                sqlServerOptionsAction.MigrationsAssembly(typeof(RepositoryAssembly).Assembly.FullName);
-            });
+                options.UseInMemoryDatabase("FootballSocialMediaDb");
+            }
+            else
+            {
+                var connectionStrings = configuration.GetSection
+                (ConnectionStringOption.Key).Get<ConnectionStringOption>();
+
+                options.UseSqlServer(connectionStrings!.SqlServer, sqlServerOptionsAction =>
+                {
+                    sqlServerOptionsAction.MigrationsAssembly(typeof(RepositoryAssembly).Assembly.FullName);
+                    sqlServerOptionsAction.EnableRetryOnFailure(3);
+                });
+            }
 
             options.AddInterceptors(new AuditDbContextInterceptor());
         });
-
 
         services.AddScoped<IPostRepository, PostRepository>();
         services.Decorate<IPostRepository,PostRepositoryWithCache>();

@@ -1,22 +1,29 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace FootballSocialMedia.Service.RabbitMQ;
 
-public class MessageArchiverBackgroundService : BackgroundService //24saatte bir messagearchiverproduceri cagiricak
+/// <summary>24 saatte bir MessageArchiverProducer'ı çalıştırır.</summary>
+public class MessageArchiverBackgroundService(MessageArchiverProducer producer, ILogger<MessageArchiverBackgroundService> logger)
+    : BackgroundService
 {
-    private readonly MessageArchiverProducer _producer;
-
-    public MessageArchiverBackgroundService(MessageArchiverProducer producer)
-    {
-        _producer = producer;
-    }
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        // ExecuteAsync ilk await'e kadar uygulamanın açılışını bloklar; DB hazır olsun diye biraz bekle.
+        await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
+
         while (!stoppingToken.IsCancellationRequested)
         {
-            _producer.ArchiveOldMessages();
-            await Task.Delay(TimeSpan.FromHours(24), stoppingToken); 
+            try
+            {
+                await producer.ArchiveOldMessagesAsync(stoppingToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                logger.LogError(ex, "Mesaj arşivleme başarısız.");
+            }
+
+            await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
         }
     }
 }

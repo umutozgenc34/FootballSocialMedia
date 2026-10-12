@@ -1,11 +1,17 @@
-﻿using Core.CrossCuttingConcerns.Response;
+using Core.CrossCuttingConcerns.Response;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace FootballSocialMedia.Api.Controllers;
 
+/// <summary>
+/// Tüm controller'lar varsayılan olarak giriş yapmış kullanıcı ister.
+/// Herkese açık endpoint'ler [AllowAnonymous] ile işaretlenir (ör. AuthController).
+/// </summary>
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
+[Authorize]
 public class CustomBaseController : ControllerBase
 {
     [NonAction]
@@ -15,7 +21,7 @@ public class CustomBaseController : ControllerBase
         {
             HttpStatusCode.NoContent => NoContent(),
             HttpStatusCode.Created => Created(result.UrlAsCreated, result),
-            _ => new ObjectResult(result) { StatusCode = result.Status.GetHashCode() }
+            _ => new ObjectResult(result) { StatusCode = (int)result.Status }
         };
     }
 
@@ -24,8 +30,8 @@ public class CustomBaseController : ControllerBase
     {
         return result.Status switch
         {
-            HttpStatusCode.NoContent => new ObjectResult(null) { StatusCode = result.Status.GetHashCode() },
-            _ => new ObjectResult(result) { StatusCode = result.Status.GetHashCode() }
+            HttpStatusCode.NoContent => NoContent(),
+            _ => new ObjectResult(result) { StatusCode = (int)result.Status }
         };
     }
 }

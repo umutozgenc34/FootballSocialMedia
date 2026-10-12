@@ -1,55 +1,18 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using Core.Security.Services.Abstracts;
 using Microsoft.AspNetCore.Http;
 
 namespace Core.Security.Services.Concretes;
 
-public class IdentityService : IIdentityService
+public class IdentityService(IHttpContextAccessor httpContextAccessor) : IIdentityService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private ClaimsPrincipal? User => httpContextAccessor.HttpContext?.User;
 
-    public IdentityService(IHttpContextAccessor httpContextAccessor)
-    {
-        _httpContextAccessor = httpContextAccessor;
-    }
+    public string GetUserId => User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
 
-    public string GetUserId
-    {
-        get
-        {
-            var userIdClaim = _httpContextAccessor.HttpContext?.User?
-                .FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    public string UserName => User?.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
 
-            if (string.IsNullOrEmpty(userIdClaim))
-            {
-                Console.WriteLine("IdentityService: UserId is null or empty.");
-            }
-            else
-            {
-                Console.WriteLine($"IdentityService: UserId = {userIdClaim}");
-            }
+    public bool IsAuthenticated => User?.Identity?.IsAuthenticated ?? false;
 
-            return userIdClaim ?? string.Empty;
-        }
-    }
-
-    public string UserName
-    {
-        get
-        {
-            var userNameClaim = _httpContextAccessor.HttpContext?.User?
-                .FindFirst(ClaimTypes.Name)?.Value;
-
-            if (string.IsNullOrEmpty(userNameClaim))
-            {
-                Console.WriteLine("IdentityService: UserName is null or empty.");
-            }
-            else
-            {
-                Console.WriteLine($"IdentityService: UserName = {userNameClaim}");
-            }
-
-            return userNameClaim ?? string.Empty;
-        }
-    }
+    public bool IsInRole(string role) => User?.IsInRole(role) ?? false;
 }

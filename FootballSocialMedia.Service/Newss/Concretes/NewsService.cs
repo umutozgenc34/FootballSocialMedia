@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Core.CrossCuttingConcerns.Response;
 using Core.Infrastructure.Services.CloudinaryService.Abstracts;
 using Core.Infrastructure.Services.IdGenerator.Abstracts;
@@ -52,7 +52,7 @@ public class NewsService(INewsRepository newsRepository, IMapper mapper, IUnitOf
 
     public async Task<ServiceResult<List<NewsDto>>> GetAllAsync()
     {
-        var news = await newsRepository.GetAllAsync();
+        var news = (await newsRepository.GetAllAsync()).OrderByDescending(n => n.CreatedTime).ToList();
         var newsAsDto = mapper.Map<List<NewsDto>>(news);
 
         return ServiceResult<List<NewsDto>>.Success(newsAsDto, HttpStatusCode.OK);

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using FootballSocialMedia.Model.News.Dtos.Requests;
 
 namespace FootballSocialMedia.Service.Newss.Validator;
@@ -12,7 +12,7 @@ public class UpdateNewsRequestValidator : AbstractValidator<UpdateNewsRequest>
 
         RuleFor(x => x.Title)
              .NotEmpty().WithMessage("Title is required.")
-             .MaximumLength(200).WithMessage("Title cannot exceed 100 characters.");
+             .MaximumLength(200).WithMessage("Title cannot exceed 200 characters.");
 
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("Content is required.")
@@ -20,9 +20,6 @@ public class UpdateNewsRequestValidator : AbstractValidator<UpdateNewsRequest>
 
         RuleFor(x => x.Source)
             .NotEmpty().WithMessage("Source is required.")
-            .MaximumLength(255).WithMessage("Source cannot exceed 200 characters.");
-
-        RuleFor(x => x.ImageUrl)
-            .NotNull().WithMessage("Image is required.");
+            .MaximumLength(255).WithMessage("Source cannot exceed 255 characters.");
     }
 }

@@ -1,3 +1,4 @@
-﻿namespace FootballSocialMedia.Model.ChatMessages.Dtos.Requests;
+namespace FootballSocialMedia.Model.ChatMessages.Dtos.Requests;
 
-public record SendMessageDto(string SenderId, string ReceiverId, string Message);
+// Gönderen (SenderId) artık token'dan alınıyor.
+public record SendMessageDto(string ReceiverId, string Message);

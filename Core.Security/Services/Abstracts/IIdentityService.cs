@@ -1,8 +1,10 @@
-﻿namespace Core.Security.Services.Abstracts;
+namespace Core.Security.Services.Abstracts;
 
 public interface IIdentityService
 {
-    public string GetUserId { get; }
-    public string UserName { get; }
+    /// <summary>Token'daki kullanıcı Id'si (NameIdentifier). Giriş yapılmamışsa boş string.</summary>
+    string GetUserId { get; }
+    string UserName { get; }
+    bool IsAuthenticated { get; }
+    bool IsInRole(string role);
 }
-

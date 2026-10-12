@@ -1,3 +1,4 @@
-﻿namespace FootballSocialMedia.Model.Likes.Dtos.Requests;
-public sealed record CreateLikeRequest(string UserId,Guid? PostId,Guid? CommentId);
+namespace FootballSocialMedia.Model.Likes.Dtos.Requests;
 
+// UserId artık token'dan alınıyor. PostId veya CommentId'den sadece biri dolu olmalı.
+public sealed record CreateLikeRequest(Guid? PostId, Guid? CommentId);

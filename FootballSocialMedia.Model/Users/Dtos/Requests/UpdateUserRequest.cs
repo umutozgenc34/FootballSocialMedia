@@ -1,5 +1,11 @@
-﻿using FootballSocialMedia.Model.Users.Dtos.Responses;
+using Microsoft.AspNetCore.Http;
 
 namespace FootballSocialMedia.Model.Users.Dtos.Requests;
 
-public sealed record UpdateUserRequest(string Id,string? Email,string? UserName,UserProfileDto? UserProfile);
+// Güncellenen kullanıcı token'dan alınıyor. multipart/form-data ile gönderilir.
+public sealed record UpdateUserRequest(
+    string? Email,
+    string? UserName,
+    string? FavoriteTeam,
+    string? Bio,
+    IFormFile? ProfileImage);

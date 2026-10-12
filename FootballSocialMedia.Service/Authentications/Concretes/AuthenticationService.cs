@@ -1,4 +1,4 @@
-﻿using Core.CrossCuttingConcerns.Response;
+using Core.CrossCuttingConcerns.Response;
 using Core.Security.Dtos;
 using FootballSocialMedia.Model.Users.Entities;
 using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
@@ -26,7 +26,8 @@ public class AuthenticationService : IAuthenticationService
     public async Task<ServiceResult<TokenDto>> CreateTokenAsync(LoginDto loginDto)
     {
         if (loginDto == null) throw new ArgumentNullException(nameof(loginDto));
-        var user = await _userManager.FindByEmailAsync(loginDto.Email);
+        var user = await _userManager.FindByEmailAsync(loginDto.Email)
+                   ?? await _userManager.FindByNameAsync(loginDto.Email);
         if (user == null) return ServiceResult<TokenDto>.Fail("Email or Password wrong.", HttpStatusCode.BadRequest);
         if (!await _userManager.CheckPasswordAsync(user, loginDto.Password))
         {

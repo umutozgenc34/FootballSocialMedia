@@ -1,15 +1,18 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using Core.Security.Dtos;
 using FootballSocialMedia.Service.Authentications.Abstracts;
 using FootballSocialMedia.Service.Users.Abstracts;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FootballSocialMedia.Api.Controllers;
 
 [ApiVersion("1.0")]
 [ApiExplorerSettings(GroupName = "v1")]
-public class AuthController(IAuthenticationService authenticationService,IUserService userService) : CustomBaseController
+[AllowAnonymous]
+public class AuthController(IAuthenticationService authenticationService, IUserService userService) : CustomBaseController
 {
+    /// <summary>E-posta veya kullanıcı adı + şifre ile giriş.</summary>
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginDto loginDto) => CreateActionResult(await authenticationService.CreateTokenAsync(loginDto));
 
@@ -18,8 +21,10 @@ public class AuthController(IAuthenticationService authenticationService,IUserSe
        => CreateActionResult(await userService.RegisterAsync(createUserDto));
 
     [HttpPost("revoke-refresh-token")]
-    public async Task<IActionResult> RevokeRefreshToken(RefreshTokenDto refreshTokenDto) => CreateActionResult(await authenticationService.RevokeRefreshToken(refreshTokenDto.Token));
+    public async Task<IActionResult> RevokeRefreshToken(RefreshTokenDto refreshTokenDto) =>
+        CreateActionResult(await authenticationService.RevokeRefreshToken(refreshTokenDto.Token));
+
     [HttpPost("create-token-by-refresh-token")]
-    public async Task<IActionResult> CreateTokenByRefreshToken(RefreshTokenDto refreshTokenDto) => CreateActionResult(await authenticationService
-        .CreateTokenByRefreshToken(refreshTokenDto.Token));
+    public async Task<IActionResult> CreateTokenByRefreshToken(RefreshTokenDto refreshTokenDto) =>
+        CreateActionResult(await authenticationService.CreateTokenByRefreshToken(refreshTokenDto.Token));
 }

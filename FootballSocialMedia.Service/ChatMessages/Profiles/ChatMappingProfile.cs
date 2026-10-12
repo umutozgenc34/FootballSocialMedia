@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using FootballSocialMedia.Model.ChatMessages.Dtos.Responses;
 using FootballSocialMedia.Model.ChatMessages.Entities;
 
@@ -9,8 +9,7 @@ public class ChatMappingProfile : Profile
     public ChatMappingProfile()
     {
         CreateMap<ChatMessage, ChatMessageDto>()
-       .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender.UserName))
-       .ForMember(dest => dest.ReceiverName, opt => opt.MapFrom(src => src.Receiver.UserName)) 
-       .ReverseMap(); ;
+            .ForMember(dest => dest.SenderName, opt => opt.MapFrom(src => src.Sender != null ? src.Sender.UserName : null))
+            .ForMember(dest => dest.ReceiverName, opt => opt.MapFrom(src => src.Receiver != null ? src.Receiver.UserName : null));
     }
 }

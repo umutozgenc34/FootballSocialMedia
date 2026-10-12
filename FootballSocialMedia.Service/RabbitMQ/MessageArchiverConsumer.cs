@@ -1,8 +1,8 @@
-﻿using Core.Infrastructure.RabbitMQ;
+using Core.Infrastructure.RabbitMQ;
 using FootballSocialMedia.Model.ChatMessages.Entities;
 using FootballSocialMedia.Repository.Context;
 using Microsoft.Extensions.Hosting;
-using MongoDB.Bson;
+using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -11,49 +11,48 @@ using System.Text.Json;
 
 namespace FootballSocialMedia.Service.RabbitMQ;
 
-public class MessageArchiverConsumer : BackgroundService //mesajları dinleyip mongoya kaydedecek
+/// <summary>Arşiv kuyruğunu dinleyip mesajları MongoDB'ye kaydeder.</summary>
+public class MessageArchiverConsumer : BackgroundService
 {
     private readonly IModel _channel;
     private readonly MongoDbContext _mongoDbContext;
-    private const string QueueName = "ArchivedMessagesQueue";
+    private readonly ILogger<MessageArchiverConsumer> _logger;
 
-    public MessageArchiverConsumer(RabbitMQClient rabbitMqClient, MongoDbContext mongoDbContext)
+    public MessageArchiverConsumer(RabbitMQClient rabbitMqClient, MongoDbContext mongoDbContext, ILogger<MessageArchiverConsumer> logger)
     {
-        _channel = rabbitMqClient.GetChannel();
         _mongoDbContext = mongoDbContext;
-
-        _channel.QueueDeclare(queue: QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        _logger = logger;
+        _channel = rabbitMqClient.CreateChannel();
+        _channel.QueueDeclare(queue: MessageArchiverProducer.QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
     }
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var consumer = new EventingBasicConsumer(_channel);
-        consumer.Received += async (model, ea) =>
+        consumer.Received += async (_, ea) =>
         {
-            var body = ea.Body.ToArray();
-            var jsonMessage = Encoding.UTF8.GetString(body);
-
-            var archivedMessage = JsonSerializer.Deserialize<ArchivedMessage>(jsonMessage);
-
-            if (archivedMessage != null)
+            try
             {
-
-                if (string.IsNullOrEmpty(archivedMessage.Id))
+                var archivedMessage = JsonSerializer.Deserialize<ArchivedMessage>(Encoding.UTF8.GetString(ea.Body.ToArray()));
+                if (archivedMessage != null)
                 {
-                    archivedMessage.Id = ObjectId.GenerateNewId().ToString();
+                    // Eski hali Update.Set(msg => msg, ...) kullanıyordu; Mongo driver bunu çeviremeyip exception atıyordu.
+                    await _mongoDbContext.ArchivedMessages.ReplaceOneAsync(
+                        m => m.Id == archivedMessage.Id,
+                        archivedMessage,
+                        new ReplaceOptions { IsUpsert = true },
+                        stoppingToken);
                 }
-                var filter = Builders<ArchivedMessage>.Filter.Eq(msg => msg.Id, archivedMessage.Id);
-                var update = Builders<ArchivedMessage>.Update.Set(msg => msg, archivedMessage);
-
-                await _mongoDbContext.ArchivedMessages.UpdateOneAsync(filter, update, new UpdateOptions { IsUpsert = true });
+                _channel.BasicAck(ea.DeliveryTag, false);
             }
-
-            _channel.BasicAck(ea.DeliveryTag, false);
-
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Arşiv mesajı MongoDB'ye yazılamadı.");
+                _channel.BasicNack(ea.DeliveryTag, false, requeue: true);
+            }
         };
 
-        _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
-
-        await Task.Delay(-1, stoppingToken);
+        _channel.BasicConsume(queue: MessageArchiverProducer.QueueName, autoAck: false, consumer: consumer);
+        return Task.CompletedTask;
     }
 }

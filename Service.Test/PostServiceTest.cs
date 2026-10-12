@@ -1,154 +1,182 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Core.Infrastructure.Services.CloudinaryService.Abstracts;
-using Core.Infrastructure.Services.IdGenerator.Abstracts;
+using FootballSocialMedia.Model.Follows.Entities;
+using FootballSocialMedia.Model.Likes.Entities;
+using FootballSocialMedia.Model.Comments;
 using FootballSocialMedia.Model.Posts.Dtos.Requests;
-using FootballSocialMedia.Model.Posts.Dtos.Responses;
 using FootballSocialMedia.Model.Posts.Entities;
-using FootballSocialMedia.Repository.Posts.Abstracts;
-using FootballSocialMedia.Repository.UnitOfWorks.Abstracts;
+using FootballSocialMedia.Model.Search.Dtos;
+using FootballSocialMedia.Model.Users.Entities;
+using FootballSocialMedia.Repository.Context;
+using FootballSocialMedia.Repository.Follows.Concretes;
+using FootballSocialMedia.Repository.Posts.Concretes;
+using FootballSocialMedia.Repository.UnitOfWorks.Concretes;
 using FootballSocialMedia.Service.Elasticsearch.Abstracts;
 using FootballSocialMedia.Service.Posts.Concretes;
 using Moq;
 using System.Net;
 
-namespace Service.Test
+namespace Service.Test;
+
+[TestFixture]
+public class PostServiceTest
 {
-    [TestFixture]
-    public class PostServiceTest
+    private AppDbContext _context = null!;
+    private TestDb.FakeIdentity _identity = null!;
+    private Mock<IElasticsearchService> _elasticsearchMock = null!;
+    private PostService _postService = null!;
+    private User _ali = null!;
+    private User _veli = null!;
+
+    [SetUp]
+    public void SetUp()
     {
-        private Mock<IPostRepository> _postRepositoryMock;
-        private Mock<IMapper> _mapperMock;
-        private Mock<IUnitOfWork> _unitOfWorkMock;
-        private Mock<IIdGenerator> _idGeneratorMock;
-        private Mock<ICloudinaryService> _cloudinaryServiceMock;
-        private Mock<IElasticsearchService> _elasticsearchServiceMock;
-        private PostService _postService;
+        _context = TestDb.CreateContext();
+        _identity = new TestDb.FakeIdentity();
+        _elasticsearchMock = new Mock<IElasticsearchService>();
 
-        [SetUp]
-        public void SetUp()
-        {
-            _postRepositoryMock = new Mock<IPostRepository>();
-            _mapperMock = new Mock<IMapper>();
-            _unitOfWorkMock = new Mock<IUnitOfWork>();
-            _idGeneratorMock = new Mock<IIdGenerator>();
-            _cloudinaryServiceMock = new Mock<ICloudinaryService>();
-            _elasticsearchServiceMock = new Mock<IElasticsearchService>();
+        _postService = new PostService(
+            new PostRepository(_context),
+            new Mock<IMapper>().Object,
+            new UnitOfWork(_context),
+            TestDb.IdGenerator,
+            new Mock<ICloudinaryService>().Object,
+            _elasticsearchMock.Object,
+            _identity.Object,
+            new FollowRepository(_context));
 
-            _postService = new PostService(
-                _postRepositoryMock.Object,
-                _mapperMock.Object,
-                _unitOfWorkMock.Object,
-                _idGeneratorMock.Object,
-                _cloudinaryServiceMock.Object,
-                _elasticsearchServiceMock.Object
-                
-            );
-        }
+        _ali = TestDb.AddUser(_context, "ali");
+        _veli = TestDb.AddUser(_context, "veli");
+    }
 
-        [Test]
-        public async Task CreateAsync_WhenCalled_ReturnsSuccessResult()
-        {
-            // Arrange
-            var request = new CreatePostRequest("UserId","Test content", null, null);
+    [TearDown]
+    public void TearDown() => _context.Dispose();
 
-            var post = new Post
-            {
-                Id = Guid.NewGuid(),
-                Content = request.Content
-            };
+    private Post AddPost(User owner, string content)
+    {
+        var post = new Post { Id = Guid.NewGuid(), Content = content, UserId = owner.Id };
+        _context.Posts.Add(post);
+        _context.SaveChanges();
+        return post;
+    }
 
-            _mapperMock.Setup(m => m.Map<Post>(request)).Returns(post);
-            _idGeneratorMock.Setup(id => id.GenerateId()).Returns(post.Id);
-            _postRepositoryMock.Setup(r => r.AddAsync(post)).Returns(ValueTask.CompletedTask);
-            _unitOfWorkMock.Setup(u => u.SaveChangesAsync()).ReturnsAsync(1);
+    [Test]
+    public async Task CreateAsync_UsesUserFromToken_AndIndexesToElasticsearch()
+    {
+        _identity.LoginAs(_ali);
 
-            var expectedResponse = new CreatePostResponse(post.Id, post.UserId,post.Content, new List<string>(), new List<string>(), DateTime.UtcNow);
-            _mapperMock.Setup(m => m.Map<CreatePostResponse>(post)).Returns(expectedResponse);
+        var result = await _postService.CreateAsync(new CreatePostRequest("Fenerbahçe bu sene şampiyon!", null, null));
 
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Created));
+        Assert.That(result.Data!.UserId, Is.EqualTo(_ali.Id));
+        Assert.That(result.Data.Username, Is.EqualTo("ali"));
+        Assert.That(_context.Posts.Single().UserId, Is.EqualTo(_ali.Id));
+        _elasticsearchMock.Verify(e => e.IndexPostAsync(It.Is<PostSearchDocument>(d => d.UserName == "ali")), Times.Once);
+    }
 
-            // Act
-            var result = await _postService.CreateAsync(request);
+    [Test]
+    public async Task GetFeedAsync_ReturnsCountsAndLikedByMe()
+    {
+        var post = AddPost(_ali, "Derbi yorumları");
+        _context.Likes.Add(new Like { Id = Guid.NewGuid(), PostId = post.Id, UserId = _veli.Id });
+        _context.Comments.Add(new Comment { Id = Guid.NewGuid(), PostId = post.Id, UserId = _veli.Id, Content = "Katılıyorum" });
+        _context.SaveChanges();
 
-            // Assert
-            Assert.IsTrue(result.IsSuccess);
-            Assert.AreEqual(HttpStatusCode.Created, result.Status);
-            Assert.AreEqual(expectedResponse.Id, result.Data.Id);
-            _postRepositoryMock.Verify(r => r.AddAsync(post), Times.Once);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-        }
+        _identity.LoginAs(_veli);
+        var result = await _postService.GetFeedAsync("all", 1, 10);
 
-        [Test]
-        public async Task DeleteAsync_PostNotFound_ReturnsFailResult()
-        {
-            // Arrange
-            var postId = Guid.NewGuid();
-            _postRepositoryMock.Setup(r => r.GetByIdAsync(postId)).ReturnsAsync((Post)null);
+        var dto = result.Data!.Single();
+        Assert.That(dto.LikeCount, Is.EqualTo(1));
+        Assert.That(dto.CommentCount, Is.EqualTo(1));
+        Assert.That(dto.IsLikedByMe, Is.True);
 
-            // Act
-            var result = await _postService.DeleteAsync(postId);
+        _identity.LoginAs(_ali);
+        var asAli = await _postService.GetFeedAsync("all", 1, 10);
+        Assert.That(asAli.Data!.Single().IsLikedByMe, Is.False);
+    }
 
-            // Assert
-            Assert.IsFalse(result.IsSuccess);
-            Assert.AreEqual(HttpStatusCode.NotFound, result.Status);
-            Assert.AreEqual("Post not found", result.ErrorMessage.FirstOrDefault());
-            _postRepositoryMock.Verify(r => r.GetByIdAsync(postId), Times.Once);
-            _postRepositoryMock.Verify(r => r.Delete(It.IsAny<Post>()), Times.Never);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Never);
-        }
+    [Test]
+    public async Task GetFeedAsync_FollowingMode_OnlyReturnsFollowedUsersAndMe()
+    {
+        var charlie = TestDb.AddUser(_context, "charlie");
+        AddPost(_ali, "ali post");
+        AddPost(_veli, "veli post");
+        AddPost(charlie, "charlie post");
+        _context.Follows.Add(new Follow { FollowerId = _ali.Id, FollowingId = _veli.Id });
+        _context.SaveChanges();
 
-        [Test]
-        public async Task DeleteAsync_PostExists_ReturnsSuccessResult()
-        {
-            // Arrange
-            var post = new Post { Id = Guid.NewGuid() };
-            _postRepositoryMock.Setup(r => r.GetByIdAsync(post.Id)).ReturnsAsync(post);
+        _identity.LoginAs(_ali);
+        var result = await _postService.GetFeedAsync("following", 1, 10);
 
-            // Act
-            var result = await _postService.DeleteAsync(post.Id);
+        Assert.That(result.Data!.Select(p => p.Content), Is.EquivalentTo(new[] { "ali post", "veli post" }));
+    }
 
-            // Assert
-            Assert.IsTrue(result.IsSuccess);
-            Assert.AreEqual(HttpStatusCode.NoContent, result.Status);
-            _postRepositoryMock.Verify(r => r.GetByIdAsync(post.Id), Times.Once);
-            _postRepositoryMock.Verify(r => r.Delete(post), Times.Once);
-            _unitOfWorkMock.Verify(u => u.SaveChangesAsync(), Times.Once);
-        }
+    [Test]
+    public async Task DeleteAsync_PostNotFound_ReturnsNotFound()
+    {
+        _identity.LoginAs(_ali);
+        var result = await _postService.DeleteAsync(Guid.NewGuid());
 
-        [Test]
-        public async Task GetByIdAsync_PostNotFound_ReturnsFailResult()
-        {
-            // Arrange
-            var postId = Guid.NewGuid();
-            _postRepositoryMock.Setup(r => r.GetByIdAsync(postId)).ReturnsAsync((Post)null);
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
+    }
 
-            // Act
-            var result = await _postService.GetByIdAsync(postId);
+    [Test]
+    public async Task DeleteAsync_NotOwner_ReturnsForbidden()
+    {
+        var post = AddPost(_ali, "ali'nin postu");
+        _identity.LoginAs(_veli);
 
-            // Assert
-            Assert.IsFalse(result.IsSuccess);
-            Assert.AreEqual(HttpStatusCode.NotFound, result.Status);
-            Assert.AreEqual("Post not found", result.ErrorMessage?.FirstOrDefault());
-            _postRepositoryMock.Verify(r => r.GetByIdAsync(postId), Times.Once);
-        }
+        var result = await _postService.DeleteAsync(post.Id);
 
-        [Test]
-        public async Task GetByIdAsync_PostExists_ReturnsSuccessResult()
-        {
-            // Arrange
-            var post = new Post { Id = Guid.NewGuid(), Content = "Test Content" };
-            var postDto = new PostDto { Id = post.Id, Content = post.Content };
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.Forbidden));
+        Assert.That(_context.Posts.Count(), Is.EqualTo(1));
+    }
 
-            _postRepositoryMock.Setup(r => r.GetByIdAsync(post.Id)).ReturnsAsync(post);
-            _mapperMock.Setup(m => m.Map<PostDto>(post)).Returns(postDto);
+    [Test]
+    public async Task DeleteAsync_PostWithLikesAndComments_DeletesEverything()
+    {
+        var post = AddPost(_ali, "silinecek post");
+        var comment = new Comment { Id = Guid.NewGuid(), PostId = post.Id, UserId = _veli.Id, Content = "yorum" };
+        _context.Comments.Add(comment);
+        _context.Likes.Add(new Like { Id = Guid.NewGuid(), PostId = post.Id, UserId = _veli.Id });
+        _context.Likes.Add(new Like { Id = Guid.NewGuid(), CommentId = comment.Id, UserId = _ali.Id });
+        _context.SaveChanges();
+        _context.ChangeTracker.Clear();
 
-            // Act
-            var result = await _postService.GetByIdAsync(post.Id);
+        _identity.LoginAs(_ali);
+        var result = await _postService.DeleteAsync(post.Id);
 
-            // Assert
-            Assert.IsTrue(result.IsSuccess);
-            Assert.AreEqual(HttpStatusCode.OK, result.Status);
-            Assert.AreEqual(postDto.Id, result.Data.Id);
-            _postRepositoryMock.Verify(r => r.GetByIdAsync(post.Id), Times.Once);
-        }
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NoContent));
+        Assert.That(_context.Posts.Count(), Is.Zero);
+        Assert.That(_context.Comments.Count(), Is.Zero);
+        Assert.That(_context.Likes.Count(), Is.Zero);
+        _elasticsearchMock.Verify(e => e.DeletePostAsync(post.Id), Times.Once);
+    }
+
+    [Test]
+    public async Task GetByIdAsync_PostNotFound_ReturnsNotFound()
+    {
+        _identity.LoginAs(_ali);
+        var result = await _postService.GetByIdAsync(Guid.NewGuid());
+
+        Assert.That(result.IsSuccess, Is.False);
+        Assert.That(result.Status, Is.EqualTo(HttpStatusCode.NotFound));
+        Assert.That(result.ErrorMessage!.First(), Is.EqualTo("Post not found"));
+    }
+
+    [Test]
+    public async Task GetByIdAsync_PostExists_ReturnsDto()
+    {
+        var post = AddPost(_ali, "Test Content");
+        _identity.LoginAs(_veli);
+
+        var result = await _postService.GetByIdAsync(post.Id);
+
+        Assert.That(result.IsSuccess, Is.True);
+        Assert.That(result.Data!.Content, Is.EqualTo("Test Content"));
+        Assert.That(result.Data.Username, Is.EqualTo("ali"));
+        Assert.That(result.Data.ImageUrls, Is.Not.Null);
     }
 }

@@ -1,19 +1,18 @@
-﻿using FootballSocialMedia.Model.Comments;
-using FootballSocialMedia.Model.Posts.Dtos.Responses;
-using FootballSocialMedia.Model.Posts.Entities;
-using Nest;
+using FootballSocialMedia.Model.Search.Dtos;
 
 namespace FootballSocialMedia.Service.Elasticsearch.Abstracts;
 
 public interface IElasticsearchService
 {
-    Task IndexPostAsync(Post post);
-    Task IndexCommentAsync(Comment comment);
+    /// <summary>Index'leme hataları yutulur ve loglanır; ES kapalı diye post atılamaması olmasın.</summary>
+    Task IndexPostAsync(PostSearchDocument post);
+    Task IndexCommentAsync(CommentSearchDocument comment);
     Task DeletePostAsync(Guid postId);
-    Task<ISearchResponse<Post>> SearchPostsAsync(string searchText);
-    Task<ISearchResponse<Comment>> SearchCommentsAsync(string searchText);
-    Task<List<PostWithCommentsResponse>> SearchAllAsync(string searchText);
-    Task<ISearchResponse<Post>> AutoCompleteAsync(string prefix);
+    Task DeleteCommentAsync(Guid commentId);
 
+    /// <summary>Metinle eşleşen post id'leri (post içeriği veya yorumları eşleşenler). ES'e ulaşılamazsa exception fırlatır.</summary>
+    Task<List<Guid>> SearchPostIdsAsync(string searchText, int size = 30);
 
+    /// <summary>Prefix ile başlayan post içerikleri (autocomplete). ES'e ulaşılamazsa exception fırlatır.</summary>
+    Task<List<string>> AutoCompleteAsync(string prefix, int size = 5);
 }

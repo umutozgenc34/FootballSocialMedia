@@ -1,122 +1,126 @@
-﻿using Core.Infrastructure.Elasticsearch;
-using FootballSocialMedia.Model.Comments;
-using FootballSocialMedia.Model.Comments.Dtos.Responses;
-using FootballSocialMedia.Model.Posts.Dtos.Responses;
-using FootballSocialMedia.Model.Posts.Entities;
+using Core.Infrastructure.Elasticsearch;
+using FootballSocialMedia.Model.Search.Dtos;
 using FootballSocialMedia.Service.Elasticsearch.Abstracts;
+using Microsoft.Extensions.Logging;
 using Nest;
 
-public class ElasticsearchService : IElasticsearchService
-{
-    private readonly ElasticsearchClient _elasticsearchClient;
+namespace FootballSocialMedia.Service.Elasticsearch.Concretes;
 
-    public ElasticsearchService(ElasticsearchClient elasticsearchClient)
+public class ElasticsearchService(ElasticsearchClient elasticsearchClient, ILogger<ElasticsearchService> logger) : IElasticsearchService
+{
+    // Post ve yorumlar ayrı index'lerde tutuluyor; eskiden ikisi de aynı index'e yazılıyordu
+    // ve SearchAsync<Post> yorumları da post gibi döndürüyordu.
+    public const string PostIndex = "fsm-posts";
+    public const string CommentIndex = "fsm-comments";
+
+    private IElasticClient Client => elasticsearchClient.GetClient();
+
+    public async Task IndexPostAsync(PostSearchDocument post)
     {
-        _elasticsearchClient = elasticsearchClient;
+        try
+        {
+            var response = await Client.IndexAsync(post, i => i.Index(PostIndex).Id(post.Id));
+            if (!response.IsValid) logger.LogWarning("Post index'lenemedi: {Info}", response.DebugInformation);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Elasticsearch'e ulaşılamadı, post index'lenmedi.");
+        }
     }
 
-    public async Task IndexPostAsync(Post post)
+    public async Task IndexCommentAsync(CommentSearchDocument comment)
     {
-        var indexResponse = await _elasticsearchClient.GetClient().IndexDocumentAsync(post);
-
-        if (!indexResponse.IsValid)
+        try
         {
-            throw new Exception($"Failed to index post: {indexResponse.DebugInformation}");
+            var response = await Client.IndexAsync(comment, i => i.Index(CommentIndex).Id(comment.Id));
+            if (!response.IsValid) logger.LogWarning("Yorum index'lenemedi: {Info}", response.DebugInformation);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Elasticsearch'e ulaşılamadı, yorum index'lenmedi.");
         }
     }
 
     public async Task DeletePostAsync(Guid postId)
     {
-        var deleteResponse = await _elasticsearchClient.GetClient().DeleteAsync<Post>(postId);
-
-        if (!deleteResponse.IsValid)
+        try
         {
-            throw new Exception($"Failed to delete post from Elasticsearch: {deleteResponse.DebugInformation}");
+            await Client.DeleteAsync<PostSearchDocument>(postId, d => d.Index(PostIndex));
+            await Client.DeleteByQueryAsync<CommentSearchDocument>(d => d
+                .Index(CommentIndex)
+                .Query(q => q.Term(t => t.Field(f => f.PostId.Suffix("keyword")).Value(postId.ToString()))));
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Elasticsearch'ten post silinemedi.");
         }
     }
 
-    public async Task IndexCommentAsync(Comment comment)
+    public async Task DeleteCommentAsync(Guid commentId)
     {
-        var indexResponse = await _elasticsearchClient.GetClient().IndexDocumentAsync(comment);
-
-        if (!indexResponse.IsValid)
+        try
         {
-            throw new Exception($"Failed to index comment: {indexResponse.DebugInformation}");
+            await Client.DeleteAsync<CommentSearchDocument>(commentId, d => d.Index(CommentIndex));
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Elasticsearch'ten yorum silinemedi.");
         }
     }
 
-    public async Task<ISearchResponse<Post>> SearchPostsAsync(string searchText)
+    public async Task<List<Guid>> SearchPostIdsAsync(string searchText, int size = 30)
     {
-        return await _elasticsearchClient.GetClient().SearchAsync<Post>(s => s
+        var postResponse = await Client.SearchAsync<PostSearchDocument>(s => s
+            .Index(PostIndex)
+            .Size(size)
             .Query(q => q
                 .MultiMatch(m => m
                     .Query(searchText)
-                    .Fields(f => f.Field(p => p.Content))
+                    .Fields(f => f.Field(p => p.Content).Field(p => p.UserName))
                     .Fuzziness(Fuzziness.Auto)
-                    .PrefixLength(0)
-                )
-            )
-            //.Sort(srt => srt.Descending(p => p.Likes.Count))
-        );
-    }
+                    .PrefixLength(0))));
 
-   public async Task<ISearchResponse<Comment>> SearchCommentsAsync(string searchText)
-    {
-        return await _elasticsearchClient.GetClient().SearchAsync<Comment>(s => s
+        EnsureValid(postResponse);
+
+        var commentResponse = await Client.SearchAsync<CommentSearchDocument>(s => s
+            .Index(CommentIndex)
+            .Size(size)
             .Query(q => q
-                .MultiMatch(m => m
+                .Match(m => m
+                    .Field(c => c.Content)
                     .Query(searchText)
-                    .Fields(f => f.Field(c => c.Content))
-                    .Fuzziness(Fuzziness.Auto)
-                    .PrefixLength(0)
-                )
-            )
-            //.Sort(srt => srt.Descending(c => c.Likes.Count))
-        );
+                    .Fuzziness(Fuzziness.Auto))));
+
+        EnsureValid(commentResponse);
+
+        return postResponse.Documents.Select(d => d.Id)
+            .Concat(commentResponse.Documents.Select(d => d.PostId))
+            .Distinct()
+            .Take(size)
+            .ToList();
     }
 
-    public async Task<List<PostWithCommentsResponse>> SearchAllAsync(string searchText)
+    public async Task<List<string>> AutoCompleteAsync(string prefix, int size = 5)
     {
-        var postResults = await SearchPostsAsync(searchText);
-        var commentResults = await SearchCommentsAsync(searchText);
-
-        var postWithCommentsList = postResults.Documents.Select(post => new PostWithCommentsResponse
-        {
-            Id = post.Id,
-            Content = post.Content,
-            ImageUrls = post.ImageUrls,
-            VideoUrls = post.VideoUrls,
-            Username = post.User?.UserName,
-            CreatedTime = post.CreatedTime,
-            UpdatedTime = post.UpdatedTime,
-
-            Comments = commentResults.Documents
-                .Where(comment => comment.PostId == post.Id)
-                .Select(comment => new CommentDto
-                {
-                    Id = comment.Id,
-                    Content = comment.Content,
-                    CreatedTime = comment.CreatedTime,
-                    UpdatedTime = comment.UpdatedTime,
-                    Username = comment.User.UserName,
-                    PostContent = comment.Post.Content
-                }).ToList()
-        }).ToList();
-
-        return postWithCommentsList;
-    }
-
-    public async Task<ISearchResponse<Post>> AutoCompleteAsync(string prefix)
-    {
-        return await _elasticsearchClient.GetClient().SearchAsync<Post>(s => s
-            .Suggest(su => su
-                .Completion("post-suggestions", c => c
+        // Eski hali "completion" suggester kullanıyordu ama Content alanı completion tipinde map'lenmediği için hep hata dönüyordu.
+        var response = await Client.SearchAsync<PostSearchDocument>(s => s
+            .Index(PostIndex)
+            .Size(size)
+            .Query(q => q
+                .MatchPhrasePrefix(m => m
                     .Field(p => p.Content)
-                    .Prefix(prefix)
-                    .Fuzzy(f => f.Fuzziness(Fuzziness.Auto))
-                )
-            )
-        );
+                    .Query(prefix))));
+
+        EnsureValid(response);
+
+        return response.Documents.Select(d => d.Content).Distinct().ToList();
     }
 
+    private static void EnsureValid(IResponse response)
+    {
+        // Index henüz yoksa (hiç post atılmamışsa) 404 döner: bu bir hata değil, sadece sonuç yok.
+        if (response.ApiCall?.HttpStatusCode == 404) return;
+        if (!response.IsValid)
+            throw new InvalidOperationException($"Elasticsearch sorgusu başarısız: {response.OriginalException?.Message ?? response.ServerError?.ToString()}");
+    }
 }

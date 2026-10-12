@@ -1,4 +1,4 @@
-﻿using Asp.Versioning;
+using Asp.Versioning;
 using FootballSocialMedia.Service.Notifications.Abstracts;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,19 +6,20 @@ namespace FootballSocialMedia.Api.Controllers;
 
 [ApiVersion("1.0")]
 [ApiExplorerSettings(GroupName = "v1")]
-
-public class NotificationsController(INotificationService notificationService): CustomBaseController
+public class NotificationsController(INotificationService notificationService) : CustomBaseController
 {
-    [HttpGet("user/{userId}")]
-    public async Task<IActionResult> GetNotificationsByUserIdAsync(string userId) =>
-        Ok(await notificationService.GetNotificationsByUserIdAsync(userId));
-   
+    /// <summary>Giriş yapan kullanıcının son bildirimleri (yeniden eskiye)</summary>
+    [HttpGet]
+    public async Task<IActionResult> GetMyNotifications([FromQuery] int take = 50) =>
+        CreateActionResult(await notificationService.GetMyNotificationsAsync(take));
 
-    [HttpPut("markAsRead/{notificationId}")]
-    public async Task<IActionResult> MarkAsReadAsync(string notificationId)
-    {
-        await notificationService.MarkAsReadAsync(notificationId);
-        return Ok("Notification marked as read.");
-    }
+    [HttpGet("unread-count")]
+    public async Task<IActionResult> GetUnreadCount() => CreateActionResult(await notificationService.GetUnreadCountAsync());
+
+    [HttpPut("{notificationId}/read")]
+    public async Task<IActionResult> MarkAsRead(string notificationId) =>
+        CreateActionResult(await notificationService.MarkAsReadAsync(notificationId));
+
+    [HttpPut("read-all")]
+    public async Task<IActionResult> MarkAllAsRead() => CreateActionResult(await notificationService.MarkAllAsReadAsync());
 }
-
