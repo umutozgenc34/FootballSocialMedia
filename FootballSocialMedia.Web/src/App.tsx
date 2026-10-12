@@ -7,6 +7,9 @@ import { FeedPage } from "./pages/FeedPage";
 import { NotFoundPage } from "./pages/NotFound";
 import { PostDetailPage } from "./pages/PostDetailPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { MessagesPage } from "./pages/MessagesPage";
+import { NotificationsPage } from "./pages/NotificationsPage";
+import { RealtimeProvider } from "./realtime/RealtimeContext";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -24,13 +27,18 @@ export default function App() {
       <Route
         element={
           <RequireAuth>
-            <Layout />
+            <RealtimeProvider>
+              <Layout />
+            </RealtimeProvider>
           </RequireAuth>
         }
       >
         <Route index element={<FeedPage />} />
         <Route path="gonderi/:id" element={<PostDetailPage />} />
         <Route path="profil/:id" element={<ProfilePage />} />
+        <Route path="mesajlar" element={<MessagesPage />} />
+        <Route path="mesajlar/:userId" element={<MessagesPage />} />
+        <Route path="bildirimler" element={<NotificationsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

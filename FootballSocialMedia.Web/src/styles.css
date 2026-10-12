@@ -1582,7 +1582,7 @@ p {
   color: var(--grass);
 }
 
-.notif .kind.like {
+.notif .kind-like {
   background: color-mix(in srgb, var(--amber) 25%, var(--paper));
   color: #8a6700;
 }

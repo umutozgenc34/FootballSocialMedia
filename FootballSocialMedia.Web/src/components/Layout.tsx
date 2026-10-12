@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { Bell, Home, LogOut, MessageCircle, Newspaper, PenLine, Search, User, Vote } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { Avatar } from "./Avatar";
@@ -7,6 +7,7 @@ import { Composer } from "./Composer";
 import { Modal } from "./Modal";
 import { PitchMarks } from "./PitchMarks";
 import { RightRail } from "./RightRail";
+import { useRealtime } from "../realtime/RealtimeContext";
 
 interface NavItem {
   to: string;
@@ -18,14 +19,16 @@ interface NavItem {
 
 export function Layout() {
   const { user, logout } = useAuth();
+  const { unreadNotifications, unreadMessages } = useRealtime();
+  const { pathname } = useLocation();
   const [composing, setComposing] = useState(false);
   if (!user) return null;
 
   const items: NavItem[] = [
     { to: "/", label: "Akış", icon: Home, end: true },
     { to: "/ara", label: "Ara", icon: Search },
-    { to: "/bildirimler", label: "Bildirimler", icon: Bell },
-    { to: "/mesajlar", label: "Mesajlar", icon: MessageCircle },
+    { to: "/bildirimler", label: "Bildirimler", icon: Bell, badge: unreadNotifications },
+    { to: "/mesajlar", label: "Mesajlar", icon: MessageCircle, badge: unreadMessages },
     { to: "/haberler", label: "Haberler", icon: Newspaper },
     { to: "/anketler", label: "Anketler", icon: Vote },
     { to: `/profil/${user.id}`, label: "Profilim", icon: User },
@@ -74,7 +77,7 @@ export function Layout() {
           </div>
         </aside>
 
-        <main className="main">
+        <main className={`main${pathname.startsWith("/mesajlar") ? " wide" : ""}`}>
           <Outlet />
         </main>
 
