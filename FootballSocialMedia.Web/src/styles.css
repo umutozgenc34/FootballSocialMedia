@@ -1162,6 +1162,8 @@ p {
 }
 
 .profile-head .top {
+  position: relative;
+  z-index: 1;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;

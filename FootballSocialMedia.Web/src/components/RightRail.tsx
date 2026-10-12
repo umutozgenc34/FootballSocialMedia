@@ -17,7 +17,7 @@ export function RightRail() {
               id={u.id}
               userName={u.userName}
               profileImageUrl={u.profileImageUrl}
-              subtitle={u.favoriteTeam}
+              subtitle={u.favoriteTeam || "Takım seçilmedi"}
               action={<FollowButton userId={u.id} following={false} small />}
             />
           ))}

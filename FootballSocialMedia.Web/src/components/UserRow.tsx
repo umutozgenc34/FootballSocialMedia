@@ -18,7 +18,7 @@ export function UserRow({ id, userName, profileImageUrl, subtitle, action }: Pro
       </Link>
       <Link className="who" to={`/profil/${id}`}>
         <strong>{userName}</strong>
-        <span>{subtitle || "Takım seçilmedi"}</span>
+        {subtitle && <span>{subtitle}</span>}
       </Link>
       {action}
     </div>

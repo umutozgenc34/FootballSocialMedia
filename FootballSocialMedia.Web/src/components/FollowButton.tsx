@@ -4,6 +4,7 @@ import { followsApi } from "../api/endpoints";
 import type { UserProfile } from "../api/types";
 import { errorText } from "../lib/errors";
 import { useToast } from "./Toasts";
+import { useAuth } from "../auth/AuthContext";
 
 interface Props {
   userId: string;
@@ -14,23 +15,28 @@ interface Props {
 export function FollowButton({ userId, following: initial, small }: Props) {
   const qc = useQueryClient();
   const toast = useToast();
+  const { user } = useAuth();
   const [following, setFollowing] = useState(initial);
   const [hover, setHover] = useState(false);
 
+  // Hedef durumu değişken olarak geçiyoruz: optimistic setFollowing yeniden render tetikleyince
+  // mutationFn'in güncel (ters çevrilmiş) state'i okuyup yanlış isteği atmasını engeller.
   const toggle = useMutation({
-    mutationFn: () => (following ? followsApi.unfollow(userId) : followsApi.follow(userId)),
-    onMutate: () => setFollowing(!following),
-    onSuccess: () => {
-      const now = !following;
+    mutationFn: async (follow: boolean) => {
+      if (follow) await followsApi.follow(userId);
+      else await followsApi.unfollow(userId);
+    },
+    onMutate: (follow) => setFollowing(follow),
+    onSuccess: (_data, follow) => {
       qc.setQueryData<UserProfile>(["profile", userId], (p) =>
-        p ? { ...p, isFollowedByMe: now, followerCount: p.followerCount + (now ? 1 : -1) } : p,
+        p ? { ...p, isFollowedByMe: follow, followerCount: Math.max(0, p.followerCount + (follow ? 1 : -1)) } : p,
       );
       qc.invalidateQueries({ queryKey: ["posts", "feed", "following"] });
       qc.invalidateQueries({ queryKey: ["follows"] });
-      qc.invalidateQueries({ queryKey: ["me-profile"] });
+      if (user) qc.invalidateQueries({ queryKey: ["profile", user.id] });
     },
-    onError: (err) => {
-      setFollowing(following);
+    onError: (err, follow) => {
+      setFollowing(!follow);
       toast.error(errorText(err));
     },
   });
@@ -38,7 +44,7 @@ export function FollowButton({ userId, following: initial, small }: Props) {
   return (
     <button
       className={`btn ${following ? "btn-outline" : "btn-amber"}${small ? " btn-small" : ""}`}
-      onClick={() => toggle.mutate()}
+      onClick={() => toggle.mutate(!following)}
       disabled={toggle.isPending}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
