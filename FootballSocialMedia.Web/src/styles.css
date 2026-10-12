@@ -8,6 +8,8 @@
   --grass-deep: #154f2c;
   --grass-tint: #e6f0e8;
   --grass-text: #1e6b3c;
+  --unread-bg: color-mix(in srgb, #f2b705 10%, #ffffff);
+  --mine-fill: color-mix(in srgb, #f2b705 30%, #ffffff);
   --chalk: #f6f8f4;
   --paper: #ffffff;
   --ink: #15211a;
@@ -39,6 +41,8 @@
     --grass-deep: #123d24;
     --grass-tint: #1b3326;
     --grass-text: #7fd6a2;
+    --unread-bg: #1a2b20;
+    --mine-fill: color-mix(in srgb, #1f7a45 70%, #15211a);
     --chalk: #0f1813;
     --paper: #15211a;
     --ink: #e7efe9;
@@ -55,6 +59,8 @@
   --grass-deep: #123d24;
   --grass-tint: #1b3326;
   --grass-text: #7fd6a2;
+  --unread-bg: #1a2b20;
+  --mine-fill: color-mix(in srgb, #1f7a45 70%, #15211a);
   --chalk: #0f1813;
   --paper: #15211a;
   --ink: #e7efe9;
@@ -845,6 +851,8 @@ p {
 }
 
 .post-meta {
+  position: relative;
+  padding-right: 2.25rem;
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
@@ -877,8 +885,9 @@ p {
 }
 
 .post-menu {
-  margin-left: auto;
-  position: relative;
+  position: absolute;
+  top: -0.35rem;
+  right: 0;
 }
 
 .post-text {
@@ -1571,7 +1580,8 @@ p {
 }
 
 .notif.unread {
-  background: color-mix(in srgb, var(--amber) 9%, var(--paper));
+  background: var(--unread-bg);
+  box-shadow: inset 3px 0 0 var(--amber);
 }
 
 .notif .kind {
@@ -1648,8 +1658,12 @@ button.poll-option:hover:not(:disabled) {
   transition: width 0.5s ease-out;
 }
 
+.poll-option.mine {
+  border-color: var(--amber);
+}
+
 .poll-option.mine .fill {
-  background: color-mix(in srgb, var(--amber) 30%, var(--paper));
+  background: var(--mine-fill);
 }
 
 .poll-option > span {
