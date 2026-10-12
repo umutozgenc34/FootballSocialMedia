@@ -7,6 +7,7 @@
   --grass: #1e6b3c;
   --grass-deep: #154f2c;
   --grass-tint: #e6f0e8;
+  --grass-text: #1e6b3c;
   --chalk: #f6f8f4;
   --paper: #ffffff;
   --ink: #15211a;
@@ -37,6 +38,7 @@
     --grass: #1f7a45;
     --grass-deep: #123d24;
     --grass-tint: #1b3326;
+    --grass-text: #7fd6a2;
     --chalk: #0f1813;
     --paper: #15211a;
     --ink: #e7efe9;
@@ -52,6 +54,7 @@
   --grass: #1f7a45;
   --grass-deep: #123d24;
   --grass-tint: #1b3326;
+  --grass-text: #7fd6a2;
   --chalk: #0f1813;
   --paper: #15211a;
   --ink: #e7efe9;
@@ -350,7 +353,7 @@ p {
 }
 
 .auth-switch a {
-  color: var(--grass);
+  color: var(--grass-text);
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -576,7 +579,7 @@ p {
 .side-section .more {
   display: inline-block;
   margin-top: 0.6rem;
-  color: var(--grass);
+  color: var(--grass-text);
   font-weight: 600;
 }
 
@@ -722,7 +725,7 @@ p {
   border-radius: 50%;
   object-fit: cover;
   background: var(--grass-tint);
-  color: var(--grass);
+  color: var(--grass-text);
   display: inline-grid;
   place-items: center;
   font-family: var(--font-display);
@@ -867,7 +870,7 @@ p {
   gap: 0.3rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--grass);
+  color: var(--grass-text);
   background: var(--grass-tint);
   border-radius: var(--radius-pill);
   padding: 0.05rem 0.55rem;
@@ -1232,7 +1235,7 @@ p {
 }
 
 .scoreline button:hover strong {
-  color: var(--grass);
+  color: var(--grass-text);
 }
 
 /* ---------- modal ---------- */
@@ -1579,7 +1582,7 @@ p {
   display: grid;
   place-items: center;
   background: var(--grass-tint);
-  color: var(--grass);
+  color: var(--grass-text);
 }
 
 .notif .kind-like {
