@@ -111,7 +111,7 @@ export function RegisterPage() {
           <label htmlFor="userName">Kullanıcı adı</label>
           <input id="userName" className="input" autoComplete="username" required minLength={3} maxLength={50}
             value={userName} onChange={(e) => setUserName(e.target.value)} />
-          <span className="hint">Harf ve rakam kullan, boşluk olmasın.</span>
+          <span className="hint">Profilinde görünecek ad. Türkçe karakter ve boşluk kullanabilirsin.</span>
         </div>
         <div className="field">
           <label htmlFor="email">E-posta</label>

@@ -9,6 +9,8 @@ public class UpdateUserRequestValidator : AbstractValidator<UpdateUserRequest>
     {
         RuleFor(x => x.UserName)
             .Length(3, 50).WithMessage("Kullanıcı adı 3 ile 50 karakter arasında olmalıdır.")
+                .Must(n => n == null || (n == n.Trim() && !n.Contains("  ")))
+                .WithMessage("Kullanıcı adı boşlukla başlayıp bitemez ve art arda boşluk içeremez.")
             .When(x => !string.IsNullOrEmpty(x.UserName));
 
         RuleFor(x => x.Email)

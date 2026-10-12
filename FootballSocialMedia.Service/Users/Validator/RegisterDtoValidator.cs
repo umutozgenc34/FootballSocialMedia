@@ -9,7 +9,9 @@ public class RegisterDtoValidator : AbstractValidator<RegisterDto>
     {
         RuleFor(x => x.UserName)
                 .NotEmpty().WithMessage("Kullanıcı adı boş olamaz.")
-                .Length(3, 50).WithMessage("Kullanıcı adı 3 ile 50 karakter arasında olmalıdır.");
+                .Length(3, 50).WithMessage("Kullanıcı adı 3 ile 50 karakter arasında olmalıdır.")
+                .Must(n => n == null || (n == n.Trim() && !n.Contains("  ")))
+                .WithMessage("Kullanıcı adı boşlukla başlayıp bitemez ve art arda boşluk içeremez.");
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("E-posta boş olamaz.")

@@ -35,6 +35,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddIdentityCore<User>(opt =>
 {
     opt.User.RequireUniqueEmail = true;
+    // Varsayılan liste Türkçe karakter ve boşluk içermiyordu ("Umut Özgenç" gibi adlarla kayıt olunamıyordu)
+    opt.User.AllowedUserNameCharacters =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+ çğıöşüÇĞİÖŞÜ";
     opt.Password.RequireNonAlphanumeric = false;
     opt.Password.RequireUppercase = false;
     opt.Password.RequiredLength = 6;
