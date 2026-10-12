@@ -1,6 +1,7 @@
 using Core.Infrastructure.Extensions;
 using Core.Infrastructure.Versioning;
 using Core.Security.Extensions;
+using FootballSocialMedia.Api.Configuration;
 using FootballSocialMedia.Api.ExceptionHandler;
 using FootballSocialMedia.Api.Seed;
 using FootballSocialMedia.Model.Users.Entities;
@@ -14,7 +15,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
+// Secret'lar (connection string şifreleri, Cloudinary, JWT anahtarı) repoya girmeyen .env dosyasında.
+// CreateBuilder'dan önce yüklenmeli ki ortam değişkenleri konfigürasyona dahil olsun.
+var envFile = DotEnv.Load();
+
 var builder = WebApplication.CreateBuilder(args);
+
+EnsureRequiredSettings(builder.Configuration, envFile);
 
 builder.Services.AddRepositoryExtension(builder.Configuration);
 builder.Services.AddServiceExtension(builder.Configuration);
@@ -133,6 +140,22 @@ app.MapHub<ChatHub>("/chathub");
 await DatabaseSeeder.SeedAsync(app.Services, app.Configuration, app.Logger);
 
 app.Run();
+
+// .env eksikse uygulama anlaşılmaz NullReference hatalarıyla değil, ne yapılacağını söyleyerek dursun
+static void EnsureRequiredSettings(IConfiguration configuration, string? envFile)
+{
+    var required = new List<string> { "TokenOption:SecurityKey", "ConnectionStrings:Redis", "ConnectionStrings:MongoDb", "ConnectionStrings:RabbitMQ" };
+    if (!configuration.GetValue<bool>("Database:UseInMemory")) required.Add("ConnectionStrings:SqlServer");
+
+    var missing = required.Where(key => string.IsNullOrWhiteSpace(configuration[key])).ToList();
+    if (missing.Count == 0) return;
+
+    throw new InvalidOperationException(
+        $"Eksik ayarlar: {string.Join(", ", missing)}. " +
+        (envFile is null
+            ? "Repo kökünde .env dosyası bulunamadı: .env.example dosyasını .env olarak kopyalayıp değerleri doldurun."
+            : $".env dosyasını ({envFile}) kontrol edin; anahtarlarda iç içe ayarlar için '__' kullanılır (ör. TokenOption__SecurityKey)."));
+}
 
 // WebApplicationFactory ile entegrasyon testleri yazılabilsin diye
 public partial class Program;

@@ -1,10 +1,11 @@
+# Şifreler repo kökündeki .env dosyasından okunur (bkz. .env.example)
 services:
   mssql:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: fsm_sql_server_container
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Fsm12345
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - MSSQL_PID=Express
     ports:
       - "1433:1433"  
@@ -22,8 +23,8 @@ services:
     image: rabbitmq:3-management
     container_name: fsm_rabbitmq_container
     environment:
-      - RABBITMQ_DEFAULT_USER=Fsm12345
-      - RABBITMQ_DEFAULT_PASS=Fsm12345
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
     ports:
       - "5672:5672"    
       - "15672:15672"  
@@ -34,8 +35,8 @@ services:
     image: mongo:latest
     container_name: new_fsm_mongo_container
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=Fsm12345
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
     ports:
       - "27018:27017"
     volumes:
@@ -45,8 +46,8 @@ services:
     image: mongo-express
     container_name: new_fsm_mongo_express_container
     environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=Fsm12345  
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_PASSWORD}  
       - ME_CONFIG_MONGODB_SERVER=new_fsm_mongo_container 
       - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
       - ME_CONFIG_MONGODB_AUTH_DATABASE=admin

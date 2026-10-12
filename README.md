@@ -22,6 +22,16 @@ Futbol tutkunlarının paylaşım yaptığı, maçları tartıştığı, anketle
 
 ## Çalıştırma
 
+### 0. Secret'lar (.env)
+
+Connection string şifreleri, JWT anahtarı, Cloudinary anahtarları ve admin şifresi repoya girmeyen `.env` dosyasında durur:
+
+```bash
+cp .env.example .env   # Windows: copy .env.example .env
+```
+
+Sonra `.env` içindeki boş değerleri doldur. Bu dosyayı hem `docker compose` (container şifreleri) hem de API okur (`FootballSocialMedia.Api/Configuration/DotEnv.cs`, ek paket gerektirmez). API anahtarlarında iç içe ayarlar `__` ile yazılır, ör. `TokenOption__SecurityKey`. `.env` eksik ya da bir değer boşsa API açılışta hangi ayarın eksik olduğunu söyleyerek durur.
+
 ### 1. Altyapı (Docker)
 
 ```bash
@@ -41,7 +51,7 @@ dotnet run --launch-profile http
 
 - API: http://localhost:5187, Swagger: http://localhost:5187/swagger (sağ üstteki **Authorize** butonuna login'den gelen `accessToken`'ı yapıştır)
 - Açılışta bekleyen **migration'lar otomatik uygulanır**, `user` / `admin` rolleri oluşturulur.
-- Development ortamında bir admin hesabı oluşturulur: **admin@fsm.com / Admin123** (`appsettings.Development.json` → `SeedAdmin`).
+- Development ortamında bir admin hesabı oluşturulur: **admin@fsm.com**, şifresi `.env` → `SeedAdmin__Password`.
 
 > **https** profilini kullanırsan API hem 7101 (https) hem 5187 (http) portunu dinler, front yine çalışır. IIS Express kullanırsan `FootballSocialMedia.Web/.env` içindeki adresi değiştirmen gerekir.
 
@@ -90,12 +100,10 @@ Service.Test                    NUnit testleri
 
 ## Güvenlik notu
 
-`appsettings.Development.json` içindeki Cloudinary anahtarları ve JWT `SecurityKey` repoda açık duruyor. Cloudinary panelinden anahtarı yenileyip yenisini [user-secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) ile tutman önerilir:
+Secret'lar artık `.env` dosyasında ve `.gitignore` sayesinde repoya girmiyor. Ancak eski commit'lerde Cloudinary anahtarları ve JWT `SecurityKey` açık duruyor. Bu yüzden:
 
-```bash
-cd FootballSocialMedia.Api
-dotnet user-secrets set "CloudinarySettings:ApiSecret" "<yeni-secret>"
-```
+1. Cloudinary panelinden API secret'ı yenile ve `.env`'e yaz.
+2. `TokenOption__SecurityKey` için yeni, rastgele bir değer üret (ör. PowerShell'de `[Convert]::ToBase64String((1..48 | % { Get-Random -Max 256 }))`).
 
 ## Sorun giderme
 
@@ -103,6 +111,7 @@ dotnet user-secrets set "CloudinarySettings:ApiSecret" "<yeni-secret>"
 | --- | --- |
 | Front "Sunucuya ulaşılamadı" diyor | API çalışıyor mu? `VITE_API_URL` doğru mu? |
 | Tarayıcıda CORS hatası | Front'un adresi `Cors:Origins` listesinde olmalı (varsayılan `http://localhost:5173`). |
+| API açılışta "Eksik ayarlar" diyor | Repo kökünde `.env` var mı? `.env.example`'dan kopyala. |
 | API açılışta RabbitMQ hatası veriyor | `docker compose up -d` ile container'ları başlat. |
 | Mesajlar canlı gelmiyor | Sohbet başlığındaki göstergeye bak; "Canlı" yazmalı. SignalR bağlı değilse mesajlar REST ile gider, karşı taraf sayfayı yenileyince görür. |
 | Fotoğraf yüklenmiyor | Cloudinary anahtarlarını kontrol et. |
