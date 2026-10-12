@@ -27,6 +27,7 @@ public class LikeService(ILikeRepository likeRepository, IPostRepository postRep
 
         // Beğenilen içeriğin sahibini bul (bildirim doğru kişiye gitsin)
         string? ownerId;
+        Guid? postIdForNotification = request.PostId;
         if (request.PostId is not null)
         {
             var post = await postRepository.GetByIdAsync(request.PostId.Value);
@@ -38,6 +39,7 @@ public class LikeService(ILikeRepository likeRepository, IPostRepository postRep
             var comment = await commentRepository.GetByIdAsync(request.CommentId!.Value);
             if (comment is null) return ServiceResult<LikeDto>.Fail("Comment not found.", HttpStatusCode.NotFound);
             ownerId = comment.UserId;
+            postIdForNotification = comment.PostId; // bildirimden ilgili gönderiye gidebilmek için
         }
 
         var existingLike = await likeRepository.GetUserLikeAsync(me, request.PostId, request.CommentId);
@@ -68,7 +70,7 @@ public class LikeService(ILikeRepository likeRepository, IPostRepository postRep
                 Content = isPost
                     ? $"{identityService.UserName} liked your post."
                     : $"{identityService.UserName} liked your comment.",
-                PostId = request.PostId?.ToString(),
+                PostId = postIdForNotification?.ToString(),
                 CommentId = request.CommentId?.ToString()
             });
         }
