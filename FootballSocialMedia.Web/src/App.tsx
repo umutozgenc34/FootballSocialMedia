@@ -10,6 +10,9 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { MessagesPage } from "./pages/MessagesPage";
 import { NotificationsPage } from "./pages/NotificationsPage";
 import { RealtimeProvider } from "./realtime/RealtimeContext";
+import { NewsPage } from "./pages/NewsPage";
+import { PollsPage } from "./pages/PollsPage";
+import { SearchPage } from "./pages/SearchPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -39,6 +42,9 @@ export default function App() {
         <Route path="mesajlar" element={<MessagesPage />} />
         <Route path="mesajlar/:userId" element={<MessagesPage />} />
         <Route path="bildirimler" element={<NotificationsPage />} />
+        <Route path="haberler" element={<NewsPage />} />
+        <Route path="anketler" element={<PollsPage />} />
+        <Route path="ara" element={<SearchPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
