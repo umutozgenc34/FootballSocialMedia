@@ -120,8 +120,10 @@ public class PostService(IPostRepository postRepository, IMapper mapper, IUnitOf
 
     public async Task<List<PostDto>> SearchInDatabaseAsync(string searchText, int size)
     {
+        // LIKE: SQL Server'da da in-memory DB'de de büyük/küçük harf duyarsız çalışır
+        var pattern = $"%{EscapeLike(searchText)}%";
         var posts = await postRepository
-            .Where(p => p.Content.Contains(searchText) || p.Comments.Any(c => c.Content.Contains(searchText)))
+            .Where(p => EF.Functions.Like(p.Content, pattern) || p.Comments.Any(c => EF.Functions.Like(c.Content, pattern)))
             .OrderByDescending(p => p.CreatedTime)
             .Take(size)
             .Select(ToDto(identityService.GetUserId))
@@ -231,4 +233,7 @@ public class PostService(IPostRepository postRepository, IMapper mapper, IUnitOf
         var postsAsDto = mapper.Map<List<PostWithCommentsResponse>>(posts);
         return ServiceResult<List<PostWithCommentsResponse>>.Success(postsAsDto, HttpStatusCode.OK);
     }
+
+    private static string EscapeLike(string text) =>
+        text.Replace("[", "[[]").Replace("%", "[%]").Replace("_", "[_]");
 }

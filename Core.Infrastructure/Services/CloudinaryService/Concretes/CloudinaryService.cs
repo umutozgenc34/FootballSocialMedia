@@ -1,4 +1,4 @@
-﻿using CloudinaryDotNet;
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Core.CrossCuttingConcerns.Exceptions;
 using Core.Infrastructure.Services.CloudinaryService.Abstracts;
@@ -35,7 +35,7 @@ public class CloudinaryService : ICloudinaryService
                     UniqueFilename = true // aynı isimli dosyalar birbirinin üzerine yazılmasın
                 };
 
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                var uploadResult = await UploadSafeAsync(() => _cloudinary.UploadAsync(uploadParams));
 
                 if (uploadResult.StatusCode == HttpStatusCode.OK)
                 {
@@ -69,7 +69,7 @@ public class CloudinaryService : ICloudinaryService
                     UniqueFilename = true // aynı isimli dosyalar birbirinin üzerine yazılmasın
                 };
 
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                var uploadResult = await UploadSafeAsync(() => _cloudinary.UploadAsync(uploadParams));
 
                 if (uploadResult.StatusCode == HttpStatusCode.OK)
                 {
@@ -83,5 +83,18 @@ public class CloudinaryService : ICloudinaryService
         }
 
         return videoUrls;
+    }
+
+    /// <summary>Ağ / yetki hatalarını CloudinaryException'a çevirir; böylece kullanıcıya anlaşılır bir mesaj döner.</summary>
+    private static async Task<T> UploadSafeAsync<T>(Func<Task<T>> upload)
+    {
+        try
+        {
+            return await upload();
+        }
+        catch (Exception ex) when (ex is not CloudinaryException)
+        {
+            throw new CloudinaryException($"Upload failed: {ex.Message}");
+        }
     }
 }

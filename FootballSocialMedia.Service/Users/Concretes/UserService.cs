@@ -123,9 +123,10 @@ public class UserService(UserManager<User> userManager, RoleManager<IdentityRole
         if (string.IsNullOrWhiteSpace(query))
             return ServiceResult<List<UserSummaryDto>>.Success(new List<UserSummaryDto>());
 
-        var q = query.Trim();
+        var pattern = $"%{query.Trim().Replace("[", "[[]").Replace("%", "[%]").Replace("_", "[_]")}%";
         var users = await userManager.Users
-            .Where(u => u.UserName!.Contains(q) || (u.Profile != null && u.Profile.FavoriteTeam != null && u.Profile.FavoriteTeam.Contains(q)))
+            .Where(u => EF.Functions.Like(u.UserName!, pattern) ||
+                        (u.Profile != null && u.Profile.FavoriteTeam != null && EF.Functions.Like(u.Profile.FavoriteTeam, pattern)))
             .OrderBy(u => u.UserName)
             .Take(Math.Clamp(take, 1, 50))
             .Select(u => new UserSummaryDto
