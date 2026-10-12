@@ -5,6 +5,7 @@ import { Spinner } from "./components/Feedback";
 import { LoginPage, RegisterPage } from "./pages/AuthPages";
 import { FeedPage } from "./pages/FeedPage";
 import { NotFoundPage } from "./pages/NotFound";
+import { PostDetailPage } from "./pages/PostDetailPage";
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
@@ -27,6 +28,7 @@ export default function App() {
         }
       >
         <Route index element={<FeedPage />} />
+        <Route path="gonderi/:id" element={<PostDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

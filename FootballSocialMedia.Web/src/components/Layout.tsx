@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { Bell, Home, LogOut, MessageCircle, Newspaper, Search, User, Vote } from "lucide-react";
+import { Bell, Home, LogOut, MessageCircle, Newspaper, PenLine, Search, User, Vote } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { Avatar } from "./Avatar";
+import { Composer } from "./Composer";
+import { Modal } from "./Modal";
 import { PitchMarks } from "./PitchMarks";
+import { RightRail } from "./RightRail";
 
 interface NavItem {
   to: string;
@@ -14,6 +18,7 @@ interface NavItem {
 
 export function Layout() {
   const { user, logout } = useAuth();
+  const [composing, setComposing] = useState(false);
   if (!user) return null;
 
   const items: NavItem[] = [
@@ -52,6 +57,11 @@ export function Layout() {
             ))}
           </nav>
 
+          <button className="btn btn-amber btn-block rail-post-btn" onClick={() => setComposing(true)}>
+            <PenLine size={18} aria-hidden="true" />
+            <span className="label">Gönderi paylaş</span>
+          </button>
+
           <div className="rail-me">
             <Avatar name={user.userName} src={user.profileImageUrl} size={40} />
             <div className="who">
@@ -68,7 +78,9 @@ export function Layout() {
           <Outlet />
         </main>
 
-        <aside className="side" aria-label="Yan panel" />
+        <aside className="side" aria-label="Yan panel">
+          <RightRail />
+        </aside>
       </div>
 
       <nav className="tabbar" aria-label="Alt menü">
@@ -81,6 +93,12 @@ export function Layout() {
             </NavLink>
           ))}
       </nav>
+
+      {composing && (
+        <Modal title="Gönderi paylaş" onClose={() => setComposing(false)}>
+          <Composer autoFocus onPosted={() => setComposing(false)} />
+        </Modal>
+      )}
     </>
   );
 }

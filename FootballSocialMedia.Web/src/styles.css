@@ -1830,3 +1830,8 @@ button.poll-option:hover:not(:disabled) {
   line-height: 1;
   color: var(--grass);
 }
+
+.modal .composer {
+  padding: 0;
+  border: 0;
+}
